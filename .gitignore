@@ -1,2 +1,3 @@
 # Specify filepatterns you want git to ignore.
 /teensyCode/.pio/build
+/teensyCode/platformio.sublime-workspace

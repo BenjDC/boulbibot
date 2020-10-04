@@ -22,13 +22,14 @@ Encoder myEnc(PIN_ENCODER_A,PIN_ENCODER_B);
 long last_encoder;
 long last_time;
 long current_time;
+long delta_time;
 
 long sigma_error;
 int last_error;
 
 float PID_Ki = 1;
-float PID_Kp = 1;
-float PID_Kd = 1;
+float PID_Kp = 0;
+float PID_Kd = 0;
 
 
 void KiCb( const std_msgs::Float32& Ki_msg){
@@ -65,31 +66,33 @@ void setup() {
   pinMode(MOTOR_PIN_PWM, OUTPUT); //Initiates Brake Channel A pin
   pinMode(MOTOR_DEACTIVATION, INPUT_PULLUP); //Initiates Brake Channel A pin
 
-  //Serial.begin(9600);
-  //Serial.println("Boulbibot motor Encoder Test:");
-  
 }
 
 
 
 void loop(){
 
-  nh.spinOnce();
+  
 
   current_time = millis();
 
-  if ((current_time - last_time) > 50)
+  delta_time = current_time - last_time;
+
+  if (delta_time > 200)
   {
+    nh.spinOnce();
+
     last_time = current_time;
 
     if (digitalRead(MOTOR_DEACTIVATION) == LOW)
     {
       // set motor speed (rpm)
-      set_motor_speed(100);
+      set_motor_speed(80);
+      //set_motor_pwm(HIGH, 100);
+      //get_motor_rpm();
     }
     else
     {
-      // Serial.println("motor deactivated");
       // stop the motor
       set_motor_pwm(LOW, 0);
     }
@@ -100,8 +103,6 @@ void set_motor_pwm(int motor_direction, int pwm_value)
 {
   if (pwm_value == 0)
   {
-  
-
     digitalWrite(MOTOR_PIN_BREAK, HIGH); //Engage the Brake
   }
   else
@@ -134,9 +135,7 @@ int get_motor_rpm()
 {
   int rpm_value;
   int current_encoder = myEnc.read();
-
-  int current_time = millis();
-  float delta_time = current_time - last_time;
+  int current_time = millis();  
   float delta_encoder = current_encoder - last_encoder;
 
   // handle the encoder_delta overflow/underflow case
@@ -160,8 +159,9 @@ int get_motor_rpm()
 
   rpm_value = (int)(motor_speed * 60);
 
-  //Serial.println(rpm_value);
   speed_msg.data = rpm_value;
+
+  //nh.loginfo(rpm_value);
   pub_speed.publish(&speed_msg);
 
   return rpm_value;
