@@ -10,17 +10,49 @@ https://www.instructables.com/id/Arduino-Motor-Shield-Tutorial/
 #include "Arduino.h"
 #include "Encoder.h"
 #include "test_motor.h"
+#include <ros.h>
+#include <std_msgs/Int16.h>
+#include <std_msgs/Float32.h>
 
+std_msgs::Int16 speed_msg;
+ros::NodeHandle  nh;
 
+ros::Publisher pub_speed("current_speed", &speed_msg);
 Encoder myEnc(PIN_ENCODER_A,PIN_ENCODER_B);
 long last_encoder;
 long last_time;
+long current_time;
 
 long sigma_error;
 int last_error;
 
+float PID_Ki = 1;
+float PID_Kp = 1;
+float PID_Kd = 1;
+
+
+void KiCb( const std_msgs::Float32& Ki_msg){
+  PID_Ki = Ki_msg.data;
+}
+void KpCb( const std_msgs::Float32& Kp_msg){
+  PID_Kp = Kp_msg.data;
+}
+void KdCb( const std_msgs::Float32& Kd_msg){
+  PID_Kd = Kd_msg.data;
+}
+
+ros::Subscriber<std_msgs::Float32> sub_Ki("set_Ki", &KiCb );
+ros::Subscriber<std_msgs::Float32> sub_Kp("set_Kp", &KpCb );
+ros::Subscriber<std_msgs::Float32> sub_Kd("set_Kd", &KdCb );
 
 void setup() {
+
+  nh.initNode();
+  nh.advertise(pub_speed);
+  nh.subscribe(sub_Ki);
+  nh.subscribe(sub_Kp);
+  nh.subscribe(sub_Kd);
+  
 
   last_time = millis();
   last_encoder = myEnc.read();
@@ -33,8 +65,8 @@ void setup() {
   pinMode(MOTOR_PIN_PWM, OUTPUT); //Initiates Brake Channel A pin
   pinMode(MOTOR_DEACTIVATION, INPUT_PULLUP); //Initiates Brake Channel A pin
 
-  Serial.begin(9600);
-  Serial.println("Boulbibot motor Encoder Test:");
+  //Serial.begin(9600);
+  //Serial.println("Boulbibot motor Encoder Test:");
   
 }
 
@@ -42,29 +74,34 @@ void setup() {
 
 void loop(){
 
-  if (digitalRead(MOTOR_DEACTIVATION) == LOW)
-  {
-    // set motor speed (rpm)
-    set_motor_speed(100);
-  }
-  else
-  {
-    Serial.println("motor deactivated");
-    // stop the motor
-    set_motor_pwm(LOW, 0);
-  }
+  nh.spinOnce();
 
-  
-  
-  delay(50);
+  current_time = millis();
 
-  
+  if ((current_time - last_time) > 50)
+  {
+    last_time = current_time;
+
+    if (digitalRead(MOTOR_DEACTIVATION) == LOW)
+    {
+      // set motor speed (rpm)
+      set_motor_speed(100);
+    }
+    else
+    {
+      // Serial.println("motor deactivated");
+      // stop the motor
+      set_motor_pwm(LOW, 0);
+    }
+  }
 }
 
 void set_motor_pwm(int motor_direction, int pwm_value)
 {
   if (pwm_value == 0)
   {
+  
+
     digitalWrite(MOTOR_PIN_BREAK, HIGH); //Engage the Brake
   }
   else
@@ -90,9 +127,6 @@ void set_motor_speed(int target_speed)
   int motor_direction = (pwm_command > 0) ? HIGH : LOW;
 
   set_motor_pwm(motor_direction, abs(pwm_command));
-
-
-
 }
 
 // gets motor speed (revolutions per minute) 
@@ -126,7 +160,9 @@ int get_motor_rpm()
 
   rpm_value = (int)(motor_speed * 60);
 
-  Serial.println(rpm_value);
+  //Serial.println(rpm_value);
+  speed_msg.data = rpm_value;
+  pub_speed.publish(&speed_msg);
 
   return rpm_value;
 }
