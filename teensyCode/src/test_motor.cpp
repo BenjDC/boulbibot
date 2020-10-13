@@ -66,29 +66,25 @@ void setup() {
   pinMode(MOTOR_PIN_PWM, OUTPUT); //Initiates Brake Channel A pin
   pinMode(MOTOR_DEACTIVATION, INPUT_PULLUP); //Initiates Brake Channel A pin
 
+  // set motor break
+  digitalWrite(MOTOR_PIN_BREAK, HIGH); //Engage the Brake
+
 }
 
-
-
 void loop(){
-
-  
-
   current_time = millis();
-
   delta_time = current_time - last_time;
 
-  if (delta_time > 200)
+  if (delta_time > 50)
   {
     nh.spinOnce();
 
     last_time = current_time;
-
     if (digitalRead(MOTOR_DEACTIVATION) == LOW)
     {
       // set motor speed (rpm)
-      set_motor_speed(80);
-      //set_motor_pwm(HIGH, 100);
+      //set_motor_spee bd(80);
+      set_motor_pwm(HIGH, 100);
       //get_motor_rpm();
     }
     else
