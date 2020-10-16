@@ -30,28 +30,19 @@ long delta_time;
 
 int target_speed = 0;
 
-long sigma_error;
-int last_error;
 
-float PID_Ki = 1;
-float PID_Kp = 0;
-float PID_Kd = 0;
+float PID_Kp = 5;
+float PID_Kff1 = 0.8;
 
-
-void KiCb( const std_msgs::Float32& Ki_msg){
-  PID_Ki = Ki_msg.data;
-}
 void KpCb( const std_msgs::Float32& Kp_msg){
   PID_Kp = Kp_msg.data;
 }
-void KdCb( const std_msgs::Float32& Kd_msg){
-  PID_Kd = Kd_msg.data;
+void Kff1Cb( const std_msgs::Float32& Kff1_msg){
+  PID_Kff1 = Kff1_msg.data;
 }
 
-
-ros::Subscriber<std_msgs::Float32> sub_Ki("set_Ki", &KiCb );
 ros::Subscriber<std_msgs::Float32> sub_Kp("set_Kp", &KpCb );
-ros::Subscriber<std_msgs::Float32> sub_Kd("set_Kd", &KdCb );
+ros::Subscriber<std_msgs::Float32> sub_Kff1("set_Kff1", &Kff1Cb );
 
 
 void setup() {
@@ -60,15 +51,13 @@ void setup() {
   nh.advertise(pub_speed);
   nh.advertise(pub_target);
   nh.subscribe(sub_joy);
-  nh.subscribe(sub_Ki);
   nh.subscribe(sub_Kp);
-  nh.subscribe(sub_Kd);
+  nh.subscribe(sub_Kff1);
   
 
   last_time = millis();
   last_encoder = myEnc.read();
-  sigma_error = 0;
-  last_error = 0;
+  //last_error = 0;
   
   //Setup Channel A
   pinMode(MOTOR_PIN_A, OUTPUT); //Initiates Motor Channel A pin
@@ -88,7 +77,7 @@ void loop(){
   current_time = millis();
   delta_time = current_time - last_time;
 
-  if (delta_time > 50)
+  if (delta_time > 2)
   {
     nh.spinOnce();
 
@@ -98,8 +87,6 @@ void loop(){
     {
       // set motor speed (rpm)
       set_motor_speed(target_speed);
-      //set_motor_pwm(HIGH, 255);
-      //get_motor_rpm();
     }
     else
     {
@@ -108,9 +95,7 @@ void loop(){
     }
 
     target_msg.data = target_speed;
-
-    //nh.loginfo(rpm_value);
-    pub_speed.publish(&target_msg);
+    pub_target.publish(&target_msg);
     
   }
 }
@@ -118,9 +103,8 @@ void loop(){
 
 void joy_cb( const sensor_msgs::Joy& cmd_msg) {
 
-  //direction
-  //target_speed = map(cmd_msg.axes[0], JOY_MIN, JOY_MAX, MAX_SPEED_COUNTERCLOCK, MAX_SPEED_CLOCK);
-  target_speed = cmd_msg.axes[0] * MAX_SPEED_CLOCK;
+ target_speed = cmd_msg.axes[0] * MAX_SPEED_CLOCK;
+
 }
 
 void set_motor_pwm(int motor_direction, int pwm_value)
@@ -158,12 +142,8 @@ void set_motor_speed(int target_speed)
 {
   int actual_speed = get_motor_rpm();
   int error = target_speed - actual_speed;
-  int delta_error = error - last_error;
 
-  sigma_error += error;
-  last_error = error;
-
-  int pwm_command = PID_Kp * error + PID_Ki * sigma_error + PID_Kd * delta_error;
+  int pwm_command = PID_Kp * error + PID_Kff1 * target_speed;
 
   int motor_direction = (pwm_command > 0) ? HIGH : LOW;
 
