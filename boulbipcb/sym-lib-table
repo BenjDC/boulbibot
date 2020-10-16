@@ -1,3 +1,0 @@
-(sym_lib_table
-  (lib (name vnh5019)(type Legacy)(uri ${KIPRJMOD}/vnh5019.lib)(options "")(descr ""))
-)

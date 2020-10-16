@@ -3,3 +3,4 @@ teensyCode/.pio/build
 teensyCode/lib/ros_lib
 teensyCode/platformio.sublime-workspace
 teensyCode/platformio.sublime-project
+.DS_Store
