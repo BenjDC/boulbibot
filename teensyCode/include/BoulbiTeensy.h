@@ -1,8 +1,4 @@
 
-class boublibot
-{
-
-};
 
 //Period in microseconds
 #define BOULBI_TEENSY_PERIOD 2000
@@ -41,8 +37,15 @@ class boublibot
 #define VOLTAGE_PIN 14
 #define BATTERY_LIMIT 20//(percentage)
 
+//battery Management
 void tellBatteryLevel();
-void joy_cb( const sensor_msgs::Joy& cmd_msg);
-ros::Subscriber<sensor_msgs::Joy> sub_joy("joy", joy_cb);
 
-int target_speed = 0;
+//Ros callbacks
+void joy_cb( const sensor_msgs::Joy& cmd_msg);
+void cmd_vel_cb(const geometry_msgs::Twist& motor_command);
+geometry_msgs::Twist msg_cmd_vel;
+
+ros::Subscriber<sensor_msgs::Joy> sub_joy("joy", joy_cb);
+ros::Subscriber<geometry_msgs::Twist> cmd_vel_sub("cmd_vel", &cmd_vel_cb);
+
+//int target_speed = 0;

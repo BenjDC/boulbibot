@@ -23,12 +23,18 @@ void WheelBase::test_motors(int target_speed)
 	_ArD.set_speed(target_speed);
 }
 
-void WheelBase::move_differential()
-{
 
+void OmniWheel::set_motors(float xspeed, float yspeed, float wspeed)
+{
+	float lin_speed_scaled = xspeed * XSPEED_MAX / JOY_MAX;
+    float ang_speed_scaled = wspeed * WSPEED_MAX / JOY_MAX;
+
+	
 }
 
-void WheelBase::move_omni()
+void DiffWheel::set_motors(float xspeed, float yspeed, float wspeed)
 {
-
+	float lin_speed_scaled = xspeed * XSPEED_MAX / JOY_MAX;
+    float ang_speed_scaled = wspeed * WSPEED_MAX / JOY_MAX;
+	
 }

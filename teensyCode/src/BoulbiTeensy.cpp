@@ -12,6 +12,7 @@ Fonctionnalités:
 
 #include <ros.h>
 #include <sensor_msgs/Joy.h>
+#include <geometry_msgs/Twist.h>
 #include <std_msgs/Int16.h>
 #include <TimedBlink.h>
 #include <Battery.h>
@@ -20,16 +21,21 @@ Fonctionnalités:
 #include "BoulbiTeensy.h"
 #include "Battery.h"
 
-std_msgs::Int16 speed_msg;
-std_msgs::Int16 target_msg;
+//ros handle object
 ros::NodeHandle  nh;
 
+// ros publishers definitions
+std_msgs::Int16 speed_msg;
+std_msgs::Int16 target_msg;
 ros::Publisher pub_speed("current_speed", &speed_msg);
 ros::Publisher pub_target("target_speed", &target_msg);
 
-TimedBlink monitor(LED_BUILTIN); // Use built-in LED
+int target_speed =0;
 
-WheelBase boulbi(Motor(M1_INA, M1_INB, M1_PWM,M1_ENC1, M1_ENC2),
+// Led helper
+TimedBlink monitor(LED_BUILTIN);
+
+DiffWheel boulbi(Motor(M1_INA, M1_INB, M1_PWM,M1_ENC1, M1_ENC2),
                             Motor(M2_INA, M2_INB, M2_PWM,M2_ENC1, M2_ENC2),
                             Motor(M3_INA, M3_INB, M3_PWM,M3_ENC1, M3_ENC2),
                             Motor(M4_INA, M4_INB, M4_PWM,M4_ENC1, M4_ENC2));
@@ -62,13 +68,13 @@ void loop(){
   {
     if (!nh.connected())
     {
-      //cut motors 
+      // stop the robot
       boulbi.set_break();
       connected = false;
       monitor.blink(2000, 500);
     }
     else if (!connected)
-    {
+    {      
       connected = true;
       nh.loginfo("boulbibot teensy connected !\n");
       tellBatteryLevel();
@@ -78,15 +84,7 @@ void loop(){
     // led blinking
     monitor.blink();
 
-    // set motor speed (rpm)
-    boulbi.test_motors(target_speed);
     
-    //speed_msg.data = whatever
-    //pub_speed.publish(&speed_msg);
-
-    target_msg.data = target_speed;
-    pub_target.publish(&target_msg);
-
     if (battery.level() < BATTERY_LIMIT)
     {
       monitor.blink(200, 100);
@@ -116,9 +114,15 @@ void tellBatteryLevel()
   free(voltage_msg);
 }
 
+
+
 void joy_cb( const sensor_msgs::Joy& cmd_msg) {
 
- target_speed = cmd_msg.axes[0] * MAX_SPEED_CLOCK;
+  target_speed = cmd_msg.axes[0] * MAX_SPEED_CLOCK;
 
 }
 
+void cmd_vel_cb(const geometry_msgs::Twist& motor_command)
+{
+  boulbi.set_motors(motor_command.linear.x, motor_command.linear.y, motor_command.angular.z);
+}
