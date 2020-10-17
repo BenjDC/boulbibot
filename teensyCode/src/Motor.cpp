@@ -59,7 +59,7 @@ int Motor::get_rpm()
 {
   int rpm_value;
   int current_encoder = _myEnc.read();
-  int current_time = millis();
+  int current_time = micros();
   int delta_time = current_time - _last_time;
   float delta_encoder = current_encoder - _last_encoder;
 
@@ -76,7 +76,7 @@ int Motor::get_rpm()
     }    
   }
 
-  float motor_speed = (float)(((delta_encoder/delta_time)  * 1000)/PULSES_PER_REV);
+  float motor_speed = (float)(((delta_encoder/delta_time)  * 1000000)/PULSES_PER_REV);
 
 
   _last_time = current_time;
