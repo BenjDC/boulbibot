@@ -2,36 +2,15 @@
 Code de contrôle moteur
 Benjamin De Coninck
 
-Moteurs utilisés :
-https://fr.aliexpress.com/item/33001192874.html
+Composants utilisés :
+Moteurs : https://fr.aliexpress.com/item/33001192874.html
+Controlleurs : https://www.pololu.com/product/1451
 
 *************************************************************/
 
 #include "Arduino.h"
 #include "Encoder.h"
-#include "motor.h"
-
-/*
-
-Motor::Motor(int InA, int InB, int PWM, int EncA, int EncB)
-{
-  pinMode(InA, OUTPUT); 
-  pinMode(InB, OUTPUT); 
-  pinMode(PWM, OUTPUT);
-
-  _InA = InA;
-  _InB = InB;
-  _PWM = PWM;
-  _EncA = EncA;
-  _EncB = EncB;
-  //_myEnc = Encoder(EncA,EncB);
-
-  //_last_encoder = _myEnc.read();
-  _last_time = millis();
-  // set motor break
-  set_break();
-}
-*/
+#include "Motor.h"
 
 void Motor::set_pwm(int pwm_value)
 {

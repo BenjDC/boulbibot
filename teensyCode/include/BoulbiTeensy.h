@@ -2,22 +2,10 @@
 class boublibot
 {
 
-	public:
-		boublibot(Motor m_AvG, Motor m_AvD, Motor m_ArD, Motor m_ArG);
-		
-	private:
-		Motor _AvG;
-		Motor _AvD;
-		Motor _ArG;
-		Motor _ArD;	
-		int _last_time;
-
-		int test_motor_1(target_speed);
-		void boulbistop()
 };
 
-#define LED_PIN 13
-#define BOULBI_TEENSY_PERIOD 2
+//Period in microseconds
+#define BOULBI_TEENSY_PERIOD 2000
 
 // pinout for boulbipcb
 
@@ -49,9 +37,12 @@ class boublibot
 #define M4_ENC1 20
 #define M4_ENC2 21
 
+//Volatage Check 
+#define VOLTAGE_PIN 14
+#define BATTERY_LIMIT 20//(percentage)
 
+void tellBatteryLevel();
 void joy_cb( const sensor_msgs::Joy& cmd_msg);
-
 ros::Subscriber<sensor_msgs::Joy> sub_joy("joy", joy_cb);
 
 int target_speed = 0;

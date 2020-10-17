@@ -1,36 +1,31 @@
 #ifndef __MOTOR_H__
 #define __MOTOR_H__
 
+#include "Encoder.h"
 
 class Motor
 {
-   
-    int _InA;
-    int _InB;
-    int _PWM;
-    //Encoder _myEnc;
-    
-    int _last_time;
-    int _last_encoder;
-    
-  public:
-    Motor(int inA, int inB, int PWM, int encA, int encB)
-      : _InA(inA),
+ public:
+    Motor(int inA, int inB, int PWM, int encA, int encB):
+      _InA(inA),
        _InB(inB),
        _PWM(PWM),
-      //Encoder _myEnc(encA, encB),
-      _last_time(millis()),
-      _last_encoder(0)
-      {}
-
-
+      _myEnc(encA, encB),
+      _last_time(micros()),
+      _last_encoder(0){}
+      
     void set_pwm(int pwm_value);
-	 void set_break();
-	 int set_speed(int speed_value);
-	
-	
+	  void set_break();
+	  int set_speed(int speed_value);
+		
   private:
-  	int get_rpm();
+  	int _InA;
+    int _InB;
+    int _PWM;
+    Encoder _myEnc;
+    int _last_time;
+    int _last_encoder;
+    int get_rpm();
     
     
 };
