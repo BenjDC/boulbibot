@@ -17,6 +17,7 @@ class Motor
     void set_pwm(int pwm_value);
 	  void set_break();
 	  int set_speed(int speed_value);
+    int get_speed();
 		
   private:
   	int _InA;
@@ -25,7 +26,8 @@ class Motor
     Encoder _myEnc;
     int _last_time;
     int _last_encoder;
-    int get_rpm();
+    int _current_speed
+    
     
     
 };

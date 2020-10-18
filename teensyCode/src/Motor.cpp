@@ -44,7 +44,7 @@ void Motor::set_break()
 // gets motor speed (revolutions per minute) 
 int Motor::set_speed(int target_speed)
 {
-  int actual_speed = get_rpm();
+  int actual_speed = get_speed();
   int error = target_speed - actual_speed;
 
   int pwm_command = PID_Kp * error + PID_Kff1 * target_speed;
@@ -55,12 +55,19 @@ int Motor::set_speed(int target_speed)
 }
 
 // gets motor speed (revolutions per minute) 
-int Motor::get_rpm()
+int Motor::get_speed()
 {
-  int rpm_value;
-  int current_encoder = _myEnc.read();
+  
   int current_time = micros();
   int delta_time = current_time - _last_time;
+
+  // do not compute speed more than once every ms
+  if (delta_time < 1000)
+  {
+    return _current_speed;
+  }
+
+  int current_encoder = _myEnc.read();
   float delta_encoder = current_encoder - _last_encoder;
 
   // handle the encoder_delta overflow/underflow case
@@ -78,12 +85,11 @@ int Motor::get_rpm()
 
   float motor_speed = (float)(((delta_encoder/delta_time)  * 1000000)/PULSES_PER_REV);
 
-
   _last_time = current_time;
   _last_encoder = current_encoder;
 
-  rpm_value = (int)(motor_speed * 60);
+  _current_speed = (int)(motor_speed * 60);
 
-  return rpm_value;
+  return _current_speed;
 }
 

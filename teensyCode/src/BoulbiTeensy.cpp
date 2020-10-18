@@ -120,6 +120,8 @@ void joy_cb( const sensor_msgs::Joy& cmd_msg) {
 
   target_speed = cmd_msg.axes[0] * MAX_SPEED_CLOCK;
 
+  boulbi.test_motors(target_speed);
+
 }
 
 void cmd_vel_cb(const geometry_msgs::Twist& motor_command)
