@@ -44,6 +44,7 @@ Battery battery(2550, 3150, VOLTAGE_PIN);
 
 
 int last_time;
+bool connected; 
 
 void setup() {
 
@@ -54,15 +55,17 @@ void setup() {
 
   pinMode(LED_BUILTIN, OUTPUT);
   monitor.blink(1000,1000);
+  connected=false;
 }
 
 void loop(){
   
   int current_time = micros();
-  int delta_time = current_time - last_time;
-  bool connected=false;
+  int delta_time = current_time - last_time;  
 
   nh.spinOnce();
+  // led blinking
+  monitor.blink();
 
   if (delta_time > BOULBI_TEENSY_PERIOD)
   {
@@ -71,24 +74,30 @@ void loop(){
       // stop the robot
       boulbi.set_break();
       connected = false;
-      monitor.blink(2000, 500);
+      monitor.blink(500, 2500);
+
+      digitalWrite(0, HIGH); 
+      digitalWrite(2, LOW);
+      analogWrite(1, 0); 
     }
     else if (!connected)
-    {      
+    {
       connected = true;
-      nh.loginfo("boulbibot teensy connected !\n");
+      nh.loginfo("boulbibot teensy connected !");
       tellBatteryLevel();
-      monitor.blink(1000, 1000);
+      monitor.blink(2500, 500);
+
+      digitalWrite(0, HIGH); 
+      digitalWrite(2, LOW);
+      analogWrite(1, 125); 
     }    
 
-    // led blinking
-    monitor.blink();
-
-    
+    /*
     if (battery.level() < BATTERY_LIMIT)
     {
       monitor.blink(200, 100);
     }
+    */
     
   }
 }
@@ -119,6 +128,8 @@ void tellBatteryLevel()
 void joy_cb( const sensor_msgs::Joy& cmd_msg) {
 
   target_speed = cmd_msg.axes[0] * MAX_SPEED_CLOCK;
+
+  nh.loginfo("testing motor !");
 
   boulbi.test_motors(target_speed);
 

@@ -8,8 +8,8 @@ class Motor
  public:
     Motor(int inA, int inB, int PWM, int encA, int encB):
       _InA(inA),
-       _InB(inB),
-       _PWM(PWM),
+      _InB(inB),
+      _PWM(PWM),
       _myEnc(encA, encB),
       _last_time(micros()),
       _last_encoder(0){}
@@ -26,10 +26,7 @@ class Motor
     Encoder _myEnc;
     int _last_time;
     int _last_encoder;
-    int _current_speed
-    
-    
-    
+    int _current_speed;
 };
 
 #define ENCODER_PULSES 11
