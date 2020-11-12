@@ -3,6 +3,8 @@
 
 #include "Encoder.h"
 #include "Motor.h"
+#include <tetra_ros/compactOdom.h>
+
 
 class WheelBase
 {
