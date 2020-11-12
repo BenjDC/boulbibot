@@ -64,7 +64,7 @@ void TimedBlink::blink(int on_for, int off_for) {
   int ct = millis();
   if (m_blinkTime==0UL) m_blinkTime=ct;
   int diff = abs(ct - m_blinkTime);
-  short set_to = -1;
+  //short set_to = -1;
 
   setOnTime(on_for);
   setOffTime(off_for);
@@ -93,7 +93,7 @@ void TimedBlink::blink() {
 void TimedBlink::blinkDelay(int d)
 {
   int ct = millis();
-  while (millis()-ct<d) {
+  while ((int)(millis()-ct)<d) {
     blink();
     delay(m_resolution);
   }
