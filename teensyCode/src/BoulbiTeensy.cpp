@@ -13,6 +13,7 @@ Fonctionnalités:
 #include <ros.h>
 #include <sensor_msgs/Joy.h>
 #include <geometry_msgs/Twist.h>
+#include <tetra_ros/compactOdom.h>
 #include <std_msgs/Int16.h>
 #include <TimedBlink.h>
 #include <Battery.h>
@@ -27,8 +28,10 @@ ros::NodeHandle  nh;
 // ros publishers definitions
 std_msgs::Int16 speed_msg;
 std_msgs::Int16 target_msg;
+tetra_ros::compactOdom msg_compact_odom;
 ros::Publisher pub_speed("current_speed", &speed_msg);
 ros::Publisher pub_target("target_speed", &target_msg);
+ros::Publisher compactOdom_pub("compact_odom", &msg_compact_odom);
 
 int target_speed =0;
 
@@ -36,10 +39,11 @@ int target_speed =0;
 TimedBlink monitor(LED_BUILTIN);
 
 DiffWheel boulbi(Motor(M1_INA, M1_INB, M1_PWM,M1_ENC1, M1_ENC2),
-                            Motor(M2_INA, M2_INB, M2_PWM,M2_ENC1, M2_ENC2),
-                            Motor(M3_INA, M3_INB, M3_PWM,M3_ENC1, M3_ENC2),
-                            Motor(M4_INA, M4_INB, M4_PWM,M4_ENC1, M4_ENC2));
-  
+                Motor(M2_INA, M2_INB, M2_PWM,M2_ENC1, M2_ENC2),
+                Motor(M3_INA, M3_INB, M3_PWM,M3_ENC1, M3_ENC2),
+                Motor(M4_INA, M4_INB, M4_PWM,M4_ENC1, M4_ENC2));
+
+
 Battery battery(2550, 3150, VOLTAGE_PIN);
 
 
@@ -78,20 +82,28 @@ void loop(){
 
       digitalWrite(0, HIGH); 
       digitalWrite(2, LOW);
-      analogWrite(1, 0); 
+      analogWrite(1, 0);
     }
-    else if (!connected)
+    else 
     {
-      connected = true;
-      nh.loginfo("boulbibot teensy connected !");
-      tellBatteryLevel();
-      monitor.blink(2500, 500);
+      if (!connected)
+      {
+        connected = true;
+        nh.loginfo("boulbibot teensy connected !");
+        tellBatteryLevel();
+        monitor.blink(2500, 500);
+      }
 
-      digitalWrite(0, HIGH); 
-      digitalWrite(2, LOW);
-      analogWrite(1, 125); 
-    }    
+      // update odometry
+      msg_compact_odom = boulbi.update_position();
+      // timestamp odometry message
+		  msg_compact_odom.stamp = nh.now();
+      // publish odometry message
+		  compactOdom_pub.publish(&msg_compact_odom);
+    }
 
+
+    // activate code for battery usage
     /*
     if (battery.level() < BATTERY_LIMIT)
     {

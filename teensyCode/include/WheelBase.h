@@ -4,9 +4,6 @@
 #include "Encoder.h"
 #include "Motor.h"
 
-
-
-
 class WheelBase
 {
  
@@ -16,30 +13,28 @@ class WheelBase
 		_AvD(m_AvD),
 		_ArG(m_ArG),
 		_ArD(m_ArD),
-		_last_time(micros()),
-		_xspeed(0),
-		_yspeed(0),
-		_wspeed(0){}
+		_last_time(micros()){}
 
-
-		void test_motors(int target_speed);		
+		void test_motors(int target_speed);
 		void set_break();
 		void get_speed();
-		void rpm_to_ms();
+		tetra_ros::compactOdom update_position();
 		virtual void set_motors(float xspeed, float yspeed, float wspeed) = 0;
-
-	private:
-		float rpm_to_ms(Motor m){return (m.get_speed() * PI * _wheelDiameter * 60 / 1000);}
+		
+	protected:
+		virtual float _get_wheel_diameter() = 0;
+		float rpm_to_ms(int rpm_speed){return (rpm_speed * PI * _get_wheel_diameter() * 60 / 1000);}
+		int ms_to_rpm(float ms_speed){return (int)((ms_speed * 1000) / (PI * _get_wheel_diameter() * 60 ));}
+		
 		Motor _AvG;
 		Motor _AvD;
 		Motor _ArG;
 		Motor _ArD;	
+
+	private:
 		int _last_time;		// µs
-		float _xspeed; 		// m.s
-		float _yspeed; 		// m.s
-		float _wspeed;		// deg.s
-		static const int _wheelDiameter;
-		static const int _wheelDistance;
+		//custom compact odometry structure
+		tetra_ros::compactOdom _c_odom;
 };
 
 class OmniWheel : public WheelBase
@@ -49,8 +44,7 @@ class OmniWheel : public WheelBase
 		WheelBase(m_AvG,  m_AvD,  m_ArD, m_ArG){}
 		void set_motors(float xspeed, float yspeed, float wspeed);
 	private:
-		static const int _wheelDiameter = 60; // mm
-		static const int _wheelDistance = 200; //mm
+		float _get_wheel_diameter(){return 60.0;}		
 };
 
 class DiffWheel : public WheelBase
@@ -60,18 +54,16 @@ class DiffWheel : public WheelBase
 		WheelBase(m_AvG,  m_AvD,  m_ArD, m_ArG){}
 		void set_motors(float xspeed, float yspeed, float wspeed);
 	private:
-		static const int _wheelDiameter = 80; // mm
-		static const int _wheelDistance = 200; //mm
+		float _get_wheel_diameter(){return 80.0;}		
 };
 
-#define WHEEL_DIAMETER	0.06
 #define WHEEL_DISTANCE	0.20
 
 #define XSPEED_MAX 		0.80 	// m.s
 #define XSACC_MAX 		0.10 	// m.s2
-#define WSPEED_MAX  	40.0	// dps
-#define WACC_MAX  		30.0	// dps/s
-#define JOY_MAX  		0.5 	// m.s
+#define WSPEED_MAX  	40.0	// d.s
+#define WACC_MAX  		30.0	// d.s2
+#define JOY_MAX  		0.5 	// no unit
 
 
 #endif
