@@ -1,0 +1,20 @@
+{
+	"folders": [
+		{
+			"path": ".."
+		},
+		{
+			"name": "TestMotor",
+			"path": "../../../../../Documents/PlatformIO/Projects/TestMotor"
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"cmath": "cpp"
+		},
+		"python.autoComplete.extraPaths": [
+			"/home/benne/ros_ws/devel/lib/python2.7/dist-packages",
+			"/opt/ros/melodic/lib/python2.7/dist-packages"
+		]
+	}
+}
