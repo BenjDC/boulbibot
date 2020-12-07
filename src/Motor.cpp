@@ -8,7 +8,8 @@ Controlleurs : https://www.pololu.com/product/1451
 
 *************************************************************/
 
-#include "Motor.h"
+#include "../include/Motor.h"
+#include <ros/ros.h>
 #include <pigpiod_if2.h>
 
 
@@ -35,6 +36,12 @@ void Motor::set_pwm(int pwm_value)
   }
 }
 
+void Motor::kill()
+{
+  pigpio_stop(_pi_id);
+}
+
+
 void Motor::set_break()
 {
   gpio_write(_pi_id, _InA, 0);
@@ -55,39 +62,38 @@ int Motor::set_speed(int target_speed)
   return actual_speed;
 }
 
+
+void Motor::_encoder_cb(int pi_id, unsigned int gpio,unsigned  int edge,unsigned  int tick)
+{
+   _encoder_value++;
+}
+
+void Motor::_encoder_cb_ex(int gpio, int level, uint32_t tick)
+{
+
+
+   _encoder_cb(gpio, level, tick); /* Call the instance callback. */
+}
+
+
+
 // gets motor speed (revolutions per minute) 
 int Motor::get_speed()
 {
-  
-  int current_time = micros();
-  int delta_time = current_time - _last_time;
+  ros::Time current_time = ros::Time::now();
+  ros::Duration delta_time = current_time - _last_time;
 
   // do not compute speed more than once every ms
-  if (delta_time < 1000)
+  if (delta_time < _measure_interval)
   {
     return _current_speed;
   }
 
-  int current_encoder = _myEnc.read();
-  float delta_encoder = current_encoder - _last_encoder;
+  float interval = _measure_interval.toSec();
 
-  // handle the encoder_delta overflow/underflow case
-  if (abs(delta_encoder) > 32768)
-  {
-    if (delta_encoder > 0)
-    {
-      delta_encoder = -((32768 * 2) - delta_encoder);
-    }
-    else
-    {
-      delta_encoder = ((32768 * 2) + delta_encoder);
-    }    
-  }
+  float motor_speed = (float)((_encoder_value/interval)/PULSES_PER_REV);
 
-  float motor_speed = (float)(((delta_encoder/delta_time)  * 1000000)/PULSES_PER_REV);
-
-  _last_time = current_time;
-  _last_encoder = current_encoder;
+  _encoder_value = 0;
 
   _current_speed = (int)(motor_speed * 60);
 

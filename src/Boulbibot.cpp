@@ -15,6 +15,8 @@ Fonctionnalités:
 #include <std_msgs/Int16.h>
 //#include "WheelBase.h"
 #include "Boulbibot.h"
+#include "Motor.h"
+#include <pigpiod_if2.h>
 
 
 //ros handle object
@@ -31,7 +33,7 @@ DiffWheel boulbi(M1_INA, M1_INB, M1_PWM,M1_ENC1, M1_ENC2,
                 M4_INA, M4_INB, M4_PWM,M4_ENC1, M4_ENC2);
 */
 
-testMotor Motor(M1_INA, M1_INB, M1_PWM,M1_ENC1, M1_ENC2, pigpio_start("rospi.local", NULL));
+Motor testMotor(M1_INA, M1_INB, M1_PWM,M1_ENC1, M1_ENC2, pigpio_start("rospi.local", NULL));
 
 int main (int argc, char *argv[])
 {
@@ -43,7 +45,7 @@ int main (int argc, char *argv[])
   ros::Publisher speed_pub = nh.advertise<std_msgs::Int16>("motor_speed", 1000);
   ros::Publisher target_pub = nh.advertise<std_msgs::Int16>("target_speed", 1000);
   
-  boulbi.set_break();
+  //boulbi.set_break();
   /*
   nh.advertise(pub_speed);
   nh.advertise(pub_target);
@@ -58,17 +60,19 @@ int main (int argc, char *argv[])
     ros::spinOnce();
 
     speed_msg.data = testMotor.get_speed();    
-    target_pub.publish(&target_msg);
-    target_pub.publish(&speed_msg);
+    //target_pub.publish(&target_msg);
+    //target_pub.publish(&speed_msg);
   }
 
-  return 1
+  testMotor.kill();
+
+  return 1;
 }
 
 
 void joy_cb( const sensor_msgs::Joy& cmd_msg) {
 
   int target_speed = (int)(cmd_msg.axes[1] * 200);
-  target_msg.data = target_speed; 
+  //target_msg.data = target_speed; 
   testMotor.set_speed(target_speed);
 }
