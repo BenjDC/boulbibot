@@ -13,7 +13,7 @@ Fonctionnalités:
 #include <sensor_msgs/Joy.h>
 #include <geometry_msgs/Twist.h>
 #include <std_msgs/Int16.h>
-#include "WheelBase.h"
+//#include "WheelBase.h"
 #include "Boulbibot.h"
 
 
@@ -23,25 +23,25 @@ ros::NodeHandle  nh;
 // ros publishers definitions
 std_msgs::Int16 speed_msg;
 std_msgs::Int16 target_msg;
-/* ros::Publisher pub_speed("current_speed", &speed_msg);
-ros::Publisher pub_target("target_speed", &target_msg);
-ros::Publisher pub_odom("compact_odom", &msg_compact_odom); */
 
-
+/*
 DiffWheel boulbi(M1_INA, M1_INB, M1_PWM,M1_ENC1, M1_ENC2,
                 M2_INA, M2_INB, M2_PWM,M2_ENC1, M2_ENC2,
                 M3_INA, M3_INB, M3_PWM,M3_ENC1, M3_ENC2,
                 M4_INA, M4_INB, M4_PWM,M4_ENC1, M4_ENC2);
+*/
 
-int last_time;
-bool connected; 
-
-ROS_INFO("boulbibot starting !");
+testMotor Motor(M1_INA, M1_INB, M1_PWM,M1_ENC1, M1_ENC2, pigpio_start("rospi.local", NULL));
 
 int main (int argc, char *argv[])
 {
+  ROS_INFO("boulbibot starting !");
+
   ros::init(argc, argv, "test_motor");
   ros::NodeHandle nh;
+  
+  ros::Publisher speed_pub = nh.advertise<std_msgs::Int16>("motor_speed", 1000);
+  ros::Publisher target_pub = nh.advertise<std_msgs::Int16>("target_speed", 1000);
   
   boulbi.set_break();
   /*
@@ -57,10 +57,9 @@ int main (int argc, char *argv[])
   {
     ros::spinOnce();
 
-    // update and publish odometry
-    // TODO : set odom type for publisher
-    boulbi.update_position();
-    pub_odom.publish(&msg_compact_odom);
+    speed_msg.data = testMotor.get_speed();    
+    target_pub.publish(&target_msg);
+    target_pub.publish(&speed_msg);
   }
 
   return 1
@@ -70,12 +69,6 @@ int main (int argc, char *argv[])
 void joy_cb( const sensor_msgs::Joy& cmd_msg) {
 
   int target_speed = (int)(cmd_msg.axes[1] * 200);
-  nh.loginfo("testing motor !");
-  boulbi.test_motors(target_speed);
-
-}
-
-void cmd_vel_cb(const geometry_msgs::Twist& motor_command)
-{
-  boulbi.set_motors(motor_command.linear.x, motor_command.linear.y, motor_command.angular.z);
+  target_msg.data = target_speed; 
+  testMotor.set_speed(target_speed);
 }
