@@ -63,16 +63,15 @@ int Motor::set_speed(int target_speed)
 }
 
 
-void Motor::_encoder_cb(int pi_id, unsigned int gpio,unsigned  int edge,unsigned  int tick)
+void Motor::_encoder_cb()
 {
-   _encoder_value++;
+  _encoder_value++;
 }
 
-void Motor::_encoder_cb_ex(int gpio, int level, uint32_t tick)
+void Motor::encoder_cb_ex(int pi_id, uint32_t gpio, uint32_t level, uint32_t tick, void* pMotor)
 {
-
-
-   _encoder_cb(gpio, level, tick); /* Call the instance callback. */
+  Motor *cbMotor = (Motor*)pMotor;
+  cbMotor->_encoder_cb();
 }
 
 

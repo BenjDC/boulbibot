@@ -24,8 +24,8 @@ class Motor
         set_mode(pi_id, _ENCA, PI_INPUT);
         set_mode(pi_id, _ENCB, PI_INPUT);
 
-        callback(pi_id, _ENCA, EITHER_EDGE, _encoder_cb_ex);
-        callback(pi_id, _ENCB, EITHER_EDGE, _encoder_cb_ex);
+        callback_ex(pi_id, _ENCA, EITHER_EDGE, encoder_cb_ex, this);
+        callback_ex(pi_id, _ENCB, EITHER_EDGE, encoder_cb_ex, this);
       }
       
     void set_pwm(int pwm_value);
@@ -33,7 +33,7 @@ class Motor
 	  int set_speed(int speed_value);
     int get_speed();
     void kill();
-    static int _encoder_value;
+    int _encoder_value;
 		
   private:
   	int _InA;
@@ -47,8 +47,8 @@ class Motor
     
     int _current_speed;
 
-    void _encoder_cb(int pi_id, unsigned int gpio,unsigned  int edge,unsigned  int tick);
-    static void _encoder_cb_ex(int pi_id, int gpio, int level, uint32_t tick);
+    void _encoder_cb();
+    static void encoder_cb_ex(int pi_id, uint32_t gpio, uint32_t level, uint32_t tick, void* pMotor);
     
 };
 

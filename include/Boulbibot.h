@@ -6,11 +6,11 @@
 // pinout for boulbipcb
 
 //MOTOR1 
-#define M1_INA 0
-#define M1_INB 2
-#define M1_PWM 1
-#define M1_ENC1 3
-#define M1_ENC2 4
+#define M1_INA 2
+#define M1_INB 3
+#define M1_PWM 4
+#define M1_ENC1 14
+#define M1_ENC2 15
 
 //MOTOR2
 #define M2_INA 26
