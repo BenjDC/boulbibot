@@ -19,9 +19,6 @@ Fonctionnalités:
 #include <pigpiod_if2.h>
 
 
-//ros handle object
-ros::NodeHandle  nh;
-
 // ros publishers definitions
 std_msgs::Int16 speed_msg;
 std_msgs::Int16 target_msg;
@@ -33,23 +30,32 @@ DiffWheel boulbi(M1_INA, M1_INB, M1_PWM,M1_ENC1, M1_ENC2,
                 M4_INA, M4_INB, M4_PWM,M4_ENC1, M4_ENC2);
 */
 
-Motor testMotor(M1_INA, M1_INB, M1_PWM,M1_ENC1, M1_ENC2, pigpio_start("rospi.local", NULL));
-
+Motor *testMotor;
 
 void joy_cb( const sensor_msgs::Joy& cmd_msg) {
 
   int target_speed = (int)(cmd_msg.axes[1] * 200);
   target_msg.data = target_speed; 
-  testMotor.set_speed(target_speed);
+  testMotor->set_speed(target_speed);
 }
 
 
 int main (int argc, char *argv[])
 {
   ROS_INFO("boulbibot starting !");
-
   ros::init(argc, argv, "test_motor");
   ros::NodeHandle nh;
+
+  Motor boulbiMotor(M1_INA, M1_INB, M1_PWM,M1_ENC1, M1_ENC2, pigpio_start("rospi.local", NULL));
+
+  ROS_INFO("motor_started");
+
+  testMotor = &boulbiMotor;
+
+  ROS_INFO("boulbibot starting !");
+
+  
+  
   
   ros::Publisher speed_pub = nh.advertise<std_msgs::Int16>("motor_speed", 1000);
   ros::Publisher target_pub = nh.advertise<std_msgs::Int16>("target_speed", 1000);
@@ -58,18 +64,22 @@ int main (int argc, char *argv[])
   //boulbi.set_break();
   
 
-  ros::Rate loop_rate(100);
+  ros::Rate loop_rate(10);
+
+  ROS_INFO("starting loop !");
 
   while (ros::ok())
   {
+
+    //ROS_INFO("looping !");
     ros::spinOnce();
 
-    speed_msg.data = testMotor.get_speed();    
+    speed_msg.data = testMotor->get_speed();    
     target_pub.publish(target_msg);
-    target_pub.publish(speed_msg);
+    speed_pub.publish(speed_msg);
   }
 
-  testMotor.kill();
+  testMotor->kill();
 
   return 1;
 }

@@ -9,8 +9,8 @@
 #define M1_INA 2
 #define M1_INB 3
 #define M1_PWM 4
-#define M1_ENC1 14
-#define M1_ENC2 15
+#define M1_ENC1 17
+#define M1_ENC2 27
 
 //MOTOR2
 #define M2_INA 26

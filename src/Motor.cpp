@@ -66,6 +66,7 @@ int Motor::set_speed(int target_speed)
 void Motor::_encoder_cb()
 {
   _encoder_value++;
+  //ROS_INFO("CALLBAK");
 }
 
 void Motor::encoder_cb_ex(int pi_id, uint32_t gpio, uint32_t level, uint32_t tick, void* pMotor)
@@ -85,17 +86,29 @@ int Motor::get_speed()
   // do not compute speed more than once every ms
   if (delta_time < _measure_interval)
   {
+    //ROS_INFO("no measure");
     return _current_speed;
   }
 
+  //ROS_INFO("measuring !");
   float interval = _measure_interval.toSec();
+
+  
+  
 
   float motor_speed = (float)((_encoder_value/interval)/PULSES_PER_REV);
 
-  _encoder_value = 0;
+  
 
   _current_speed = (int)(motor_speed * 60);
 
+  _last_time += _measure_interval;
+  _total_pulse += _encoder_value;
+
+  ROS_INFO("interval : %f, encoder delta : %i, current speed %i, encoder_total %i", interval, _encoder_value, _current_speed, _total_pulse);
+
+  
+  _encoder_value = 0;
   return _current_speed;
 }
 

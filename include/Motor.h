@@ -15,17 +15,25 @@ class Motor
       _ENCA(encA),
       _ENCB(encB),
       _last_time(ros::Time::now()),
-      _measure_interval(.001),
+      _measure_interval(0.1),
+      _encoder_value(0),
+      _total_pulse(0),
+      _current_speed(0),
       _pi_id(pi_id)
       {
+
         set_mode(pi_id, _InA,  PI_OUTPUT);
         set_mode(pi_id, _InB, PI_OUTPUT);
         set_mode(pi_id, _PWM, PI_OUTPUT);
         set_mode(pi_id, _ENCA, PI_INPUT);
         set_mode(pi_id, _ENCB, PI_INPUT);
 
+        ROS_INFO("creating callbaks");
+
         callback_ex(pi_id, _ENCA, EITHER_EDGE, encoder_cb_ex, this);
         callback_ex(pi_id, _ENCB, EITHER_EDGE, encoder_cb_ex, this);
+
+        ROS_INFO("creating ok");
       }
       
     void set_pwm(int pwm_value);
@@ -34,6 +42,7 @@ class Motor
     int get_speed();
     void kill();
     int _encoder_value;
+    int _total_pulse; 
 		
   private:
   	int _InA;
