@@ -57,14 +57,14 @@ int main (int argc, char *argv[])
   
   
   
-  ros::Publisher speed_pub = nh.advertise<std_msgs::Int16>("motor_speed", 1000);
-  ros::Publisher target_pub = nh.advertise<std_msgs::Int16>("target_speed", 1000);
-  ros::Subscriber sub = nh.subscribe("joy", 1000, joy_cb);
+  ros::Publisher speed_pub = nh.advertise<std_msgs::Int16>("motor_speed", 50);
+  ros::Publisher target_pub = nh.advertise<std_msgs::Int16>("target_speed", 50);
+  ros::Subscriber sub = nh.subscribe("joy", 50, joy_cb);
   
-  //boulbi.set_break();
+  testMotor->set_break();
   
 
-  ros::Rate loop_rate(10);
+  //ros::Rate loop_rate(10);
 
   ROS_INFO("starting loop !");
 

@@ -15,7 +15,7 @@ class Motor
       _ENCA(encA),
       _ENCB(encB),
       _last_time(ros::Time::now()),
-      _measure_interval(0.1),
+      _measure_interval(0.05),
       _encoder_value(0),
       _total_pulse(0),
       _current_speed(0),

@@ -91,7 +91,7 @@ int Motor::get_speed()
   }
 
   //ROS_INFO("measuring !");
-  float interval = _measure_interval.toSec();
+  float interval = delta_time.toSec();
 
   
   
@@ -105,7 +105,7 @@ int Motor::get_speed()
   _last_time += _measure_interval;
   _total_pulse += _encoder_value;
 
-  ROS_INFO("interval : %f, encoder delta : %i, current speed %i, encoder_total %i", interval, _encoder_value, _current_speed, _total_pulse);
+  //ROS_INFO("interval : %f, encoder delta : %i, current speed %i, encoder_total %i", interval, _encoder_value, _current_speed, _total_pulse);
 
   
   _encoder_value = 0;
