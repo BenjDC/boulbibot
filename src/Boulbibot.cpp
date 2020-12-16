@@ -36,7 +36,7 @@ void joy_cb( const sensor_msgs::Joy& cmd_msg) {
 
   int target_speed = (int)(cmd_msg.axes[1] * 200);
   target_msg.data = target_speed; 
-  testMotor->set_speed(target_speed);
+  testMotor->set_pwm(target_speed);
 }
 
 
@@ -62,21 +62,22 @@ int main (int argc, char *argv[])
   ros::Subscriber sub = nh.subscribe("joy", 50, joy_cb);
   
   testMotor->set_break();
-  
 
-  //ros::Rate loop_rate(10);
+  ros::Rate loop_rate(1);
 
   ROS_INFO("starting loop !");
 
   while (ros::ok())
   {
 
-    //ROS_INFO("looping !");
+    ROS_INFO("looping !");
     ros::spinOnce();
 
     speed_msg.data = testMotor->get_speed();    
     target_pub.publish(target_msg);
     speed_pub.publish(speed_msg);
+
+    loop_rate.sleep();
   }
 
   testMotor->kill();
