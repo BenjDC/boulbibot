@@ -25,11 +25,13 @@ void Motor::set_pwm(int pwm_value)
     {
       gpio_write(_pi_id, _InA, 1);
       gpio_write(_pi_id, _InB, 0);      
+      _foward = 1;
     }
     else
     {
       gpio_write(_pi_id, _InA, 0);
       gpio_write(_pi_id, _InB, 1);   
+      _foward = -1;
     }
 
     set_PWM_dutycycle(_pi_id, _PWM, abs(pwm_value));
@@ -55,7 +57,9 @@ int Motor::set_speed(int target_speed)
   int actual_speed = get_speed();
   int error = target_speed - actual_speed;
 
-  int pwm_command = PID_Kp * error + PID_Kff1 * target_speed;
+  int pwm_command = _Kp * error + _Kff1 * target_speed;
+
+  pwm_command = pwm_command > 255 ? 255 : pwm_command;
 
   set_pwm(pwm_command);
 
@@ -66,6 +70,17 @@ int Motor::set_speed(int target_speed)
 void Motor::_encoder_cb()
 {
   _encoder_value++;
+  /*
+  if (((gpio == _ENCA) && (level == gpio_read(_pi_id, _ENCB))) || 
+    ((gpio == _ENCB) && (level != gpio_read(_pi_id, _ENCA))))
+    {
+      _encoder_value++;
+    }
+    else
+    {
+     _encoder_value--; 
+    }
+  */
   //ROS_INFO("CALLBAK");
 }
 
@@ -80,30 +95,23 @@ void Motor::encoder_cb_ex(int pi_id, uint32_t gpio, uint32_t level, uint32_t tic
 // gets motor speed (revolutions per minute) 
 int Motor::get_speed()
 {
+
+
   ros::Time current_time = ros::Time::now();
   ros::Duration delta_time = current_time - _last_time;
 
-  // do not compute speed more than once every ms
-  if (delta_time < _measure_interval)
+  if(delta_time < _measure_interval)
   {
-    //ROS_INFO("no measure");
     return _current_speed;
   }
 
   //ROS_INFO("measuring !");
   float interval = delta_time.toSec();
-
-  
-  
-
   float motor_speed = (float)((_encoder_value/interval)/PULSES_PER_REV);
-
-  
-
-  _current_speed = (int)(motor_speed * 60);
+  _current_speed = (int)(motor_speed * 60) * _foward;
 
   _last_time += _measure_interval;
-  _total_pulse += _encoder_value;
+  _total_pulse += abs(_encoder_value);
 
   //ROS_INFO("interval : %f, encoder delta : %i, current speed %i, encoder_total %i", interval, _encoder_value, _current_speed, _total_pulse);
 

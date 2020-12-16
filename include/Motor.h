@@ -4,6 +4,10 @@
 #include <pigpiod_if2.h>
 #include <ros/ros.h>
 
+// PID values (tuned for 50 ms loop)
+#define PID_Kp    2
+#define PID_Kff1  0.8
+
 
 class Motor
 {
@@ -18,7 +22,10 @@ class Motor
       _measure_interval(0.05),
       _encoder_value(0),
       _total_pulse(0),
+      _foward(1),
       _current_speed(0),
+      _Kff1(PID_Kff1),
+      _Kp(PID_Kp),
       _pi_id(pi_id)
       {
 
@@ -43,6 +50,9 @@ class Motor
     void kill();
     int _encoder_value;
     int _total_pulse; 
+
+    float _Kff1;
+    float _Kp;
 		
   private:
   	int _InA;
@@ -51,6 +61,7 @@ class Motor
     int _pi_id;
     int _ENCA;
     int _ENCB;
+    int _foward;
     ros::Time _last_time;
     ros::Duration _measure_interval;
     
@@ -72,9 +83,7 @@ class Motor
 #define MAX_SPEED_CLOCK 300
 #define MAX_SPEED_COUNTERCLOCK 300
 
-// PID values (tuned for 50 ms loop)
-#define PID_Kp		5
-#define PID_Kff1	0.8
+
 
 
 #endif
