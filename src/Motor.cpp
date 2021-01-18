@@ -52,18 +52,15 @@ void Motor::set_break()
 }
 
 // gets motor speed (revolutions per minute) 
-int Motor::set_speed(int target_speed)
+void Motor::set_speed(int target_speed)
 {
-  int actual_speed = get_speed();
-  int error = target_speed - actual_speed;
+  int error = target_speed - _current_speed;
 
   int pwm_command = _Kp * error + _Kff1 * target_speed;
 
   pwm_command = pwm_command > 255 ? 255 : pwm_command;
 
   set_pwm(pwm_command);
-
-  return actual_speed;
 }
 
 
@@ -99,18 +96,14 @@ int Motor::get_speed()
 
   ros::Time current_time = ros::Time::now();
   ros::Duration delta_time = current_time - _last_time;
-
-  if(delta_time < _measure_interval)
-  {
-    return _current_speed;
-  }
+  _last_time = current_time;
 
   //ROS_INFO("measuring !");
   float interval = delta_time.toSec();
   float motor_speed = (float)((_encoder_value/interval)/PULSES_PER_REV);
   _current_speed = (int)(motor_speed * 60) * _foward;
 
-  _last_time += _measure_interval;
+  
   _total_pulse += abs(_encoder_value);
 
   //ROS_INFO("interval : %f, encoder delta : %i, current speed %i, encoder_total %i", interval, _encoder_value, _current_speed, _total_pulse);

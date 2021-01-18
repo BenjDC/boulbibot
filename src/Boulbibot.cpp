@@ -51,13 +51,13 @@ void joy_cb( const sensor_msgs::Joy& cmd_msg) {
     target_msg.data = target_pwm; 
     testMotor->set_pwm(target_pwm);
   }
-  /*
+  
   else if(target_speed != 0)
   {
     target_msg.data = target_speed; 
     testMotor->set_speed(target_speed);
   }
-  */
+  
 }
 
 
@@ -92,7 +92,7 @@ int main (int argc, char *argv[])
   
   testMotor->set_break();
 
-  ros::Rate loop_rate(50);
+  ros::Rate loop_rate(20);
 
   ROS_INFO("starting loop !");
 

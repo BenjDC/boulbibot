@@ -19,7 +19,7 @@ class Motor
       _ENCA(encA),
       _ENCB(encB),
       _last_time(ros::Time::now()),
-      _measure_interval(0.05),
+      _measure_interval(0.01),
       _encoder_value(0),
       _total_pulse(0),
       _foward(1),
@@ -45,7 +45,7 @@ class Motor
       
     void set_pwm(int pwm_value);
 	  void set_break();
-	  int set_speed(int speed_value);
+	  void set_speed(int speed_value);
     int get_speed();
     void kill();
     int _encoder_value;
