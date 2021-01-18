@@ -7,13 +7,14 @@
 
 //MOTOR1 
 #define M1_INA 2
-#define M1_INB 4
-#define M1_PWM 3
+#define M1_INB 3
+#define M1_PWM 4
 #define M1_ENC1 14
 #define M1_ENC2 15
 
 
 //MOTOR2
+/*
 #define M2_INA 26
 #define M2_INB 27
 #define M2_PWM 9
@@ -33,6 +34,7 @@
 #define M4_PWM 22
 #define M4_ENC1 20
 #define M4_ENC2 21
+*/
 
 //Volatage Check 
 #define VOLTAGE_PIN 14

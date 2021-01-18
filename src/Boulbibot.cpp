@@ -37,7 +37,7 @@ void joy_cb( const sensor_msgs::Joy& cmd_msg) {
 
   if (cmd_msg.buttons[0] == 1)
   {
-    ROS_INFO("BREAK !");
+    ROS_INFO("BREAK IT UP !");
     testMotor->set_break();
     target_msg.data = 0;
     return;
@@ -51,11 +51,13 @@ void joy_cb( const sensor_msgs::Joy& cmd_msg) {
     target_msg.data = target_pwm; 
     testMotor->set_pwm(target_pwm);
   }
+  /*
   else if(target_speed != 0)
   {
     target_msg.data = target_speed; 
     testMotor->set_speed(target_speed);
   }
+  */
 }
 
 
@@ -84,13 +86,13 @@ int main (int argc, char *argv[])
  
   ros::Publisher speed_pub = nh.advertise<std_msgs::Int16>("motor_speed", 50);
   ros::Publisher target_pub = nh.advertise<std_msgs::Int16>("target_speed", 50);
-  ros::Subscriber sub = nh.subscribe("joy", 50, joy_cb);
+  ros::Subscriber sub = nh.subscribe("joy", 1, joy_cb);
   ros::Subscriber KpSub = nh.subscribe("kp", 50, KpCb);
   ros::Subscriber Kff1Sub = nh.subscribe("kff1", 50, Kff1Cb);
   
   testMotor->set_break();
 
-  ros::Rate loop_rate(20);
+  ros::Rate loop_rate(50);
 
   ROS_INFO("starting loop !");
 
@@ -100,7 +102,7 @@ int main (int argc, char *argv[])
     //ROS_INFO("looping !");
     ros::spinOnce();
 
-    speed_msg.data = testMotor->get_speed();    
+    speed_msg.data = testMotor->get_speed();
     target_pub.publish(target_msg);
     speed_pub.publish(speed_msg);
 

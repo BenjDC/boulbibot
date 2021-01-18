@@ -29,6 +29,8 @@ void WheelBase::get_speed()
 			   rpm_to_ms(_AvD.get_speed()) + \
 			   rpm_to_ms(_ArG.get_speed()) + \
 			   rpm_to_ms(_ArD.get_speed()))/4;
+
+	//y speed : todo
 	
 	//angular speed is difference between left and right speed
 	_odom.ang_speed = (((rpm_to_ms(_AvG.get_speed()) + rpm_to_ms(_ArG.get_speed()))/2 - \
