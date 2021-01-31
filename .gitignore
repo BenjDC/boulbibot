@@ -3,7 +3,7 @@ teensyCode/.pio/build
 teensyCode/lib/ros_lib
 teensyCode/platformio.sublime-workspace
 teensyCode/platformio.sublime-project
-M5Code/lib/ESP8266SAM
-M5Code/lib/ESP8266Audio
+M5code/lib/ESP8266SAM
+M5code/lib/ESP8266Audio
 .DS_Store
 .vscode
