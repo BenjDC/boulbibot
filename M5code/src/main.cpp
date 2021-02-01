@@ -1,65 +1,84 @@
+#define M5STACK_MPU6886 
+
 #include <M5Stack.h>
-//#include <M5StackUpdater.h>
-#include <Avatar.h>
-#include <Arduino.h>
-#include <ESP8266SAM.h>  //https://github.com/earlephilhower/ESP8266SAM
-#include <AudioOutputI2S.h>  //https://github.com/earlephilhower/ESP8266Audio
-#include <tasks/LipSync.h>
+#include <ros.h>
+#include <sensor_msgs/Imu.h>
+#include <std_msgs/Int16.h>
 
-using namespace m5avatar;
 
-Avatar avatar;
 
-AudioOutputI2S *out = NULL;
-ESP8266SAM *sam = NULL;
+//ros handle object
+ros::NodeHandle  nh;
+sensor_msgs::Imu imu_msg;
+std_msgs::Int16 speed_msg;
+ros::Publisher imu("IMU", &imu_msg);
+ros::Publisher pub_speed("current_speed", &speed_msg);
+
+float accX = 0.0F;
+float accY = 0.0F;
+float accZ = 0.0F;
+
+float gyroX = 0.0F;
+float gyroY = 0.0F;
+float gyroZ = 0.0F;
+
+float pitch = 0.0F;
+float roll  = 0.0F;
+float yaw   = 0.0F;
 
 
 void setup()
 {
+  nh.getHardware()->setBaud(115200); //or what ever baud you want
   M5.begin();
   Wire.begin();
-  Serial.begin(115200);
+  
+  M5.Power.begin();
+  M5.IMU.Init();
 
-  /*
-  if(digitalRead(BUTTON_A_PIN) == 0){
-    Serial.println("Will load menu binary");
-    //updateFromFS(SD);
-    ESP.restart();
-  } 
-  */ 
-  out = new AudioOutputI2S(0, 1, 32);
-  sam = new ESP8266SAM;
+  nh.initNode();  
   
-  avatar.init();
-  avatar.addTask(lipSync, "lipSync");
-  audioLogger = &Serial;
+  nh.advertise(imu);
+  nh.advertise(pub_speed);
   
+  imu_msg.header.frame_id = 0;
+
+  while (!nh.connected()) {
+    nh.spinOnce();
+    M5.Lcd.fillScreen(BLACK);
+    M5.Lcd.setTextColor(GREEN , BLACK);
+    M5.Lcd.setTextSize(2);
+    M5.Lcd.setCursor(0, 0); M5.Lcd.print("Waiting ROS...");
+    delay(100);
+  }
+
 }
 
 void loop()
 {
-  
-  out->begin();
+
   M5.update();
+  M5.IMU.getGyroData(&gyroX,&gyroY,&gyroZ);
+  M5.IMU.getAccelData(&accX,&accY,&accZ);
+  M5.IMU.getAhrsData(&pitch,&roll,&yaw);
 
-  delay(2000);
 
-  avatar.setTalking(true);  
-  sam->Say(out, "stop now !");
-  avatar.setTalking(false);
-  
-  delay(1000);
+  imu_msg.linear_acceleration.x = 9.81 * accX;
+  imu_msg.linear_acceleration.y = 9.81 * accY;
+  imu_msg.linear_acceleration.y = 9.81 * accZ;
 
-  avatar.setTalking(true);  
-  sam->Say(out, "or I will shoot !");
-  avatar.setTalking(false);
+  imu_msg.angular_velocity.x = 3.141 / 180.0 * gyroX;
+  imu_msg.angular_velocity.y = 3.141 / 180.0 * gyroY;
+  imu_msg.angular_velocity.z = 3.141 / 180.0 * gyroZ;
+  
+  imu_msg.orientation.x = pitch;
+  imu_msg.orientation.y = roll;
+  imu_msg.orientation.z = yaw;
 
-  
-  
-  
-  
-  out->stop();
+  imu_msg.header.stamp = nh.now();
 
-  delay(1000000);
-  
+  imu.publish( &imu_msg );
+
+  nh.spinOnce();
+  delay(10);
 }
