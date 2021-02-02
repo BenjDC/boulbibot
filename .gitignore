@@ -5,5 +5,7 @@ teensyCode/platformio.sublime-workspace
 teensyCode/platformio.sublime-project
 M5code/lib/ESP8266SAM
 M5code/lib/ESP8266Audio
+M5code/lib/bmm150/examples
+M5code/lib/ros_lib
 .DS_Store
 .vscode
