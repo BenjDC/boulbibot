@@ -9,10 +9,7 @@
 class WheelBase
 {
 	public:
-		WheelBase(int M1_IN1, int M1_IN2, int M1_PWM, int M1_E1, int M1_E2,
-				  int M2_IN1, int M2_IN2, int M2_PWM, int M2_E1, int M2_E2,
-				  int M3_IN1, int M3_IN2, int M3_PWM, int M3_E1, int M3_E2,
-				  int M4_IN1, int M4_IN2, int M4_PWM, int M4_E1, int M4_E2):
+		WheelBase():
 		
 		_pi_id(pigpio_start("rospi.local", NULL)),
 		_AvG(Motor(M1_IN1, M1_IN2, M1_PWM, M1_E1, M1_E2, _pi_id)),
@@ -47,14 +44,9 @@ class WheelBase
 class OmniWheel : public WheelBase
 {
 	public:
-		OmniWheel(int M1_IN1, int M1_IN2, int M1_PWM, int M1_E1, int M1_E2,
-				  int M2_IN1, int M2_IN2, int M2_PWM, int M2_E1, int M2_E2,
-				  int M3_IN1, int M3_IN2, int M3_PWM, int M3_E1, int M3_E2,
-				  int M4_IN1, int M4_IN2, int M4_PWM, int M4_E1, int M4_E2):
-		WheelBase(M1_IN1, M1_IN2, M1_PWM, M1_E1, M1_E2,
-				  M2_IN1, M2_IN2, M2_PWM, M2_E1, M2_E2,
-				  M3_IN1, M3_IN2, M3_PWM, M3_E1, M3_E2,
-				  M4_IN1, M4_IN2, M4_PWM, M4_E1, M4_E2){}
+		OmniWheel():
+		WheelBase(){}
+
 		void set_motors(float xspeed, float yspeed, float wspeed);
 	private:
 		float _get_wheel_diameter(){return 60.0;}		
@@ -63,14 +55,8 @@ class OmniWheel : public WheelBase
 class DiffWheel : public WheelBase
 {
 	public:
-		DiffWheel(int M1_IN1, int M1_IN2, int M1_PWM, int M1_E1, int M1_E2,
-				  int M2_IN1, int M2_IN2, int M2_PWM, int M2_E1, int M2_E2,
-				  int M3_IN1, int M3_IN2, int M3_PWM, int M3_E1, int M3_E2,
-				  int M4_IN1, int M4_IN2, int M4_PWM, int M4_E1, int M4_E2):
-		WheelBase(M1_IN1, M1_IN2, M1_PWM, M1_E1, M1_E2,
-				  M2_IN1, M2_IN2, M2_PWM, M2_E1, M2_E2,
-				  M3_IN1, M3_IN2, M3_PWM, M3_E1, M3_E2,
-				  M4_IN1, M4_IN2, M4_PWM, M4_E1, M4_E2){}
+		DiffWheel():
+		WheelBase(){}
 		void set_motors(float xspeed, float yspeed, float wspeed);
 	private:
 		float _get_wheel_diameter(){return 80.0;}		
