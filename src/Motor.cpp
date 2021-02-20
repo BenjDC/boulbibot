@@ -8,7 +8,6 @@ Controlleurs : https://www.pololu.com/product/1451
 
 *************************************************************/
 
-#include "../include/Motor.h"
 #include <ros/ros.h>
 #include <pigpiod_if2.h>
 

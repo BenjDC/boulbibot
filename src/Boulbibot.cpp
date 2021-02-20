@@ -14,17 +14,22 @@ Fonctionnalités:
 #include <geometry_msgs/Twist.h>
 #include <std_msgs/Int16MultiArray.h>
 #include <std_msgs/Float32.h>
-//#include "WheelBase.h"
+#include "WheelBase.h"
 #include "Boulbibot.h"
-#include "Motor.h"
+//#include "Motor.h"
 #include <pigpiod_if2.h>
 
-DiffWheel boulbi()
+DiffWheel *boulbi;
 
 // ros publishers definitions
 std_msgs::Int16MultiArray actual_speed;
 std_msgs::Int16MultiArray target_speed;
 
+
+void actual_speed_cb(std_msgs::Int16MultiArray actual_speed)
+{
+  //TODO
+}
 
 void joy_cb( const sensor_msgs::Joy& cmd_msg) {
 
@@ -32,7 +37,6 @@ void joy_cb( const sensor_msgs::Joy& cmd_msg) {
   {
     ROS_INFO("BREAK IT UP !");
     boulbi->set_break();
-    target_msg.data = 0;
     return;
   }
 
@@ -41,31 +45,33 @@ void joy_cb( const sensor_msgs::Joy& cmd_msg) {
 
   if (target_pwm != 0)
   {
-    target_msg.data = target_pwm; 
-    boulbi->set_pwm(target_pwm);
+    boulbi->test_pwm(target_pwm);
   }
   
   else if(target_speed != 0)
   {
-    target_msg.data = target_speed; 
-    boulbi->set_speed(target_speed);
+    boulbi->test_speed(target_speed);
   }
 }
 
 
 int main (int argc, char *argv[])
 {
+
+  DiffWheel boulbi_bot;
+  boulbi = &boulbi_bot;
+
   ROS_INFO("boulbibot starting !");
   ros::init(argc, argv, "test_motor");
   ros::NodeHandle nh;
  
   ros::Publisher target_pub = nh.advertise<std_msgs::Int16MultiArray>("target_speed", 50);
 
-  ros::Publisher speed_pub = nh.subscribe("actual_speed", 100, actual_speed_cb);
-  ros::Subscriber sub = nh.subscribe("joy", 100, joy_cb);
+  ros::Subscriber speed_sub = nh.subscribe("actual_speed", 100, actual_speed_cb);
+  ros::Subscriber joy_sub = nh.subscribe("joy", 100, joy_cb);
   
   
-  set_break();
+  boulbi->set_break();
 
   ros::Rate loop_rate(20);
 
@@ -77,8 +83,8 @@ int main (int argc, char *argv[])
     //ROS_INFO("looping !");
     ros::spinOnce();
 
-    target_pub.publish(target_msg);
-    
+    target_pub.publish(target_speed);
+        
     loop_rate.sleep();
   }
 

@@ -7,25 +7,30 @@ Benjamin De Coninck
 
 void WheelBase::set_break()
 {
-	_AvG.set_break();
-	_AvD.set_break();
-	_ArG.set_break();
-	_ArD.set_break();
+	//TODO
 }
 
-void WheelBase::test_motors(int target_speed)
+void WheelBase::test_speed(int target_speed)
 {
-	_AvG.set_speed(target_speed);
-	_AvD.set_speed(target_speed);
-	_ArG.set_speed(target_speed);
-	_ArD.set_speed(target_speed);
+	//TODO
+}
 
+void WheelBase::test_pwm(int target_pwm)
+{
+	//TODO
+}
+
+void WheelBase::kill()
+{
+	//TODO
+	ROS_INFO("killin' boulbi");
 }
 
 void WheelBase::get_speed()
 {
+	//TODO
 	//linear x speed is mean of all motor linear speed
-	_odom.x_speed = (rpm_to_ms(_AvG.get_speed()) + \
+	//_odom.x_speed = (rpm_to_ms(_AvG.get_speed()) + \
 			   rpm_to_ms(_AvD.get_speed()) + \
 			   rpm_to_ms(_ArG.get_speed()) + \
 			   rpm_to_ms(_ArD.get_speed()))/4;
@@ -33,9 +38,9 @@ void WheelBase::get_speed()
 	//y speed : todo
 	
 	//angular speed is difference between left and right speed
-	_odom.ang_speed = (((rpm_to_ms(_AvG.get_speed()) + rpm_to_ms(_ArG.get_speed()))/2 - \
-			  ((rpm_to_ms(_AvD.get_speed())  + rpm_to_ms(_ArD.get_speed()))/2))/2) 
-					/ (float)(WHEEL_DISTANCE * PI);	
+	//_odom.ang_speed = (((rpm_to_ms(_AvG.get_speed()) + rpm_to_ms(_ArG.get_speed()))/2 - \
+			//   ((rpm_to_ms(_AvD.get_speed())  + rpm_to_ms(_ArD.get_speed()))/2))/2) 
+			// 		/ (float)(WHEEL_DISTANCE * PI);	
 
 }
 
@@ -45,9 +50,9 @@ nav_msgs::Odometry WheelBase::update_position()
 	//TODO
 	get_speed();
 
-	int current_time = micros();
-	float delta_time = (current_time - _last_time)/1000000; // time delta in seconds
-	_last_time = current_time;
+	// int current_time = micros();
+	// float delta_time = (current_time - _last_time)/1000000; // time delta in seconds
+	// _last_time = current_time;
 
 	// _c_odom.ang_pos += _c_odom.ang_speed * delta_time;	
 	// _c_odom.x_pos += (_c_odom.x_speed * cos((_c_odom.ang_pos /180) * PI) + \
@@ -66,14 +71,17 @@ void OmniWheel::set_motors(float xspeed, float yspeed, float wspeed)
 
 void DiffWheel::set_motors(float xspeed, float yspeed, float wspeed)
 {
-	// yspeed is disregarded for the differential transmission motor
-	float lin_xspeed = ms_to_rpm(xspeed * XSPEED_MAX / JOY_MAX);
-    float lin_wspeed = ms_to_rpm((WHEEL_DISTANCE * (wspeed * WSPEED_MAX / JOY_MAX) * PI)/360); 
+	//TODO 
 	
-	_AvG.set_speed(lin_xspeed + lin_wspeed);
-	_AvD.set_speed(lin_xspeed + lin_wspeed);
-	_ArG.set_speed(lin_xspeed - lin_wspeed);
-	_ArD.set_speed(lin_xspeed - lin_wspeed);
+	// yspeed is disregarded for the differential transmission motor
+	// float lin_xspeed = ms_to_rpm(xspeed * XSPEED_MAX / JOY_MAX);
+    // float lin_wspeed = ms_to_rpm((WHEEL_DISTANCE * (wspeed * WSPEED_MAX / JOY_MAX) * PI)/360); 
+	
+	//TODO
+	// _AvG.set_speed(lin_xspeed + lin_wspeed);
+	// _AvD.set_speed(lin_xspeed + lin_wspeed);
+	// _ArG.set_speed(lin_xspeed - lin_wspeed);
+	// _ArD.set_speed(lin_xspeed - lin_wspeed);
 }
 
 
