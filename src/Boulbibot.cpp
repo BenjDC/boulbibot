@@ -19,6 +19,7 @@ Fonctionnalités:
 //#include "Motor.h"
 #include <pigpiod_if2.h>
 
+
 DiffWheel *boulbi;
 
 // ros publishers definitions
@@ -29,6 +30,8 @@ std_msgs::Int16MultiArray target_speed;
 void actual_speed_cb(std_msgs::Int16MultiArray actual_speed)
 {
   //TODO
+
+  
 }
 
 void joy_cb( const sensor_msgs::Joy& cmd_msg) {
@@ -58,7 +61,7 @@ void joy_cb( const sensor_msgs::Joy& cmd_msg) {
 int main (int argc, char *argv[])
 {
 
-  DiffWheel boulbi_bot;
+  DiffWheel boulbi_bot(AV_G_ID, AV_D_ID, AR_G_ID, AR_D_ID);
   boulbi = &boulbi_bot;
 
   ROS_INFO("boulbibot starting !");
@@ -69,7 +72,6 @@ int main (int argc, char *argv[])
 
   ros::Subscriber speed_sub = nh.subscribe("actual_speed", 100, actual_speed_cb);
   ros::Subscriber joy_sub = nh.subscribe("joy", 100, joy_cb);
-  
   
   boulbi->set_break();
 
@@ -82,6 +84,7 @@ int main (int argc, char *argv[])
 
     //ROS_INFO("looping !");
     ros::spinOnce();
+    
 
     target_pub.publish(target_speed);
         

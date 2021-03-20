@@ -133,7 +133,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(${PROJECT_NAME}_node src/Boulbibot.cpp src/WheelBase.cpp)
+add_executable(${PROJECT_NAME}_node src/Boulbibot.cpp src/WheelBase.cpp src/sm_protocol.cpp src/port_handler.cpp src/port_handler_linux.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -150,7 +150,7 @@ add_executable(${PROJECT_NAME}_node src/Boulbibot.cpp src/WheelBase.cpp)
 #   ${catkin_LIBRARIES}
 # )
 
-target_link_libraries(boulbibot_node ${catkin_LIBRARIES} -lpigpiod_if2)
+target_link_libraries(boulbibot_node ${catkin_LIBRARIES})
 
 #############
 ## Install ##

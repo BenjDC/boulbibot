@@ -5,6 +5,32 @@ Benjamin De Coninck
 
 #include "WheelBase.h"
 
+
+void WheelBase::init_pwm()
+{
+	uint8_t byte_data;
+	// set PWM control mode
+	byte_data = 1;
+	_test_motor.writeByteCommand(_avG_id, REG_TORQUE_ENABLE, 1, &byte_data);
+	byte_data = REG_CONTROL_MODE_PWM;
+	_test_motor.writeByteCommand(_avG_id, REG_CONTROL_MODE, 1, &byte_data);
+
+	byte_data = 1;
+	_test_motor.writeByteCommand(_avD_id, REG_TORQUE_ENABLE, 1, &byte_data);
+	byte_data = REG_CONTROL_MODE_PWM;
+	_test_motor.writeByteCommand(_avD_id, REG_CONTROL_MODE, 1, &byte_data);
+
+	byte_data = 1;
+	_test_motor.writeByteCommand(_arD_id, REG_TORQUE_ENABLE, 1, &byte_data);
+	byte_data = REG_CONTROL_MODE_PWM;
+	_test_motor.writeByteCommand(_arD_id, REG_CONTROL_MODE, 1, &byte_data);
+
+	byte_data = 1;
+	_test_motor.writeByteCommand(_arG_id, REG_TORQUE_ENABLE, 1, &byte_data);
+	byte_data = REG_CONTROL_MODE_PWM;
+	_test_motor.writeByteCommand(_arG_id, REG_CONTROL_MODE, 1, &byte_data);
+}
+
 void WheelBase::set_break()
 {
 	//TODO
@@ -13,11 +39,18 @@ void WheelBase::set_break()
 void WheelBase::test_speed(int target_speed)
 {
 	//TODO
+	
+
 }
 
 void WheelBase::test_pwm(int target_pwm)
 {
-	//TODO
+	//set all motors to the same PWM target
+	
+    _test_motor.writeWordCommand(_avD_id, REG_GOAL_PWM_100_L, 1, &target_pwm);
+	_test_motor.writeWordCommand(_avG_id, REG_GOAL_PWM_100_L, 1, &target_pwm);
+	_test_motor.writeWordCommand(_arD_id, REG_GOAL_PWM_100_L, 1, &target_pwm);
+	_test_motor.writeWordCommand(_arG_id, REG_GOAL_PWM_100_L, 1, &target_pwm);	
 }
 
 void WheelBase::kill()
