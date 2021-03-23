@@ -15,14 +15,20 @@ class WheelBase
 			_avD_id(avD_id),
 			_arG_id(arG_id),
 			_arD_id(arD_id),
+			_avG_speed(0),
+			_avD_speed(0),
+			_arG_speed(0),
+			_arD_speed(0),
 			_last_time(0),
 			_test_motor(sm_protocol(500000)){}
 		
 		void test_pwm(int test_pwm);
-		void test_speed(int test_speed);
+		void test_speed(uint16_t test_speed);
 		void set_break();
-		void get_speed();
-		void init_pwm();
+		void get_speed(uint16_t *test_speed);
+		void ping_motors();
+		void init_control_mode(int control_mode);
+		void set_torque(int torque);
 		void kill();
 		nav_msgs::Odometry update_position();
 		virtual void set_motors(float xspeed, float yspeed, float wspeed) = 0;
@@ -38,6 +44,10 @@ class WheelBase
 		int _avD_id;
 		int _arG_id;
 		int _arD_id;
+		int _avG_speed;
+		int _avD_speed;
+		int _arD_speed;
+		int _arG_speed;
 		int _last_time;		// µs
 		sm_protocol _test_motor;
 		//custom compact odometry structure
@@ -72,6 +82,5 @@ class DiffWheel : public WheelBase
 #define WSPEED_MAX  	40.0	// d.s
 #define WACC_MAX  		30.0	// d.s2
 #define JOY_MAX  		0.5 	// no unit
-
 
 #endif
