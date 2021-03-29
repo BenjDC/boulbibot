@@ -20,6 +20,9 @@ Fonctionnalités:
 //#include "Motor.h"
 #include <pigpiod_if2.h>
 
+#define SPEED_TEST
+//#define PWM_TEST
+
 
 DiffWheel *boulbi;
 
@@ -27,33 +30,27 @@ DiffWheel *boulbi;
 std_msgs::Int16 actual_speed;
 std_msgs::Int16 target_speed;
 
+ros::Publisher target_pub;
 
 void joy_cb( const sensor_msgs::Joy& cmd_msg) 
 {
-  //int pwm = (int)(abs(cmd_msg.axes[1]) * 250);
-  int speed = (int)(cmd_msg.axes[4] * 330);
 
-  // if (pwm != 0)
-  // {
-    
+#ifdef PWM_TEST
+  int pwm = (int)(abs(cmd_msg.axes[1]) * 250);
+  target_speed.data = (uint16_t)pwm;
+  target_pub.publish(target_speed);
+  boulbi->test_pwm(pwm);
+#endif
 
-  //   target_speed.data = (uint16_t)pwm;
-  //   boulbi->test_pwm(pwm);
-  // }
+#ifdef SPEED_TEST
+  target_speed.data = (int16_t)(cmd_msg.axes[1] * 1000);
+  uint16_t speed = (uint16_t)target_speed.data;
+  target_pub.publish(target_speed);
+  boulbi->set_motor_speed(&speed);
+
+
+#endif
   
-  // else
-   if(speed != 0)
-  {
-    target_speed.data = (uint16_t)speed;
-    boulbi->test_speed(speed);
-  }
-
-  if (cmd_msg.buttons[0] == 1)
-  {
-    ROS_INFO("BREAK IT UP !");
-    boulbi->test_pwm(0);
-    return;
-  }
 }
 
 
@@ -74,21 +71,20 @@ int main (int argc, char *argv[])
   ros::init(argc, argv, "test_motor");
   ros::NodeHandle nh;
  
-  ros::Publisher target_pub = nh.advertise<std_msgs::Int16>("target_speed", 50);
+  target_pub = nh.advertise<std_msgs::Int16>("target_speed", 50);
   ros::Publisher speed_pub = nh.advertise<std_msgs::Int16>("actual_speed", 50);
 
   //ros::Subscriber speed_sub = nh.subscribe("actual_speed", 100, actual_speed_cb);
   ros::Subscriber joy_sub = nh.subscribe("joy", 100, joy_cb);
   
   
-  ros::Rate loop_rate(2);
+  ros::Rate loop_rate(20);
 
   
   boulbi->ping_motors();
   boulbi->init_control_mode(REG_CONTROL_MODE_VELOCITY_TORQUE);
 
   boulbi->set_torque(1);
-  boulbi->test_speed(0);
 
   ROS_INFO("Init OK, starting boulbi");
 
@@ -98,11 +94,11 @@ int main (int argc, char *argv[])
     ros::spinOnce();
     
 
-    boulbi->get_speed(&a_speed);
+    boulbi->get_motor_speed(&a_speed);
     actual_speed.data = a_speed;
     
     speed_pub.publish(actual_speed);
-    target_pub.publish(target_speed);
+    
 
     //ROS_INFO("loop %i ok", loop++);
         

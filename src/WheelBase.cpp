@@ -4,6 +4,7 @@ Benjamin De Coninck
 *************************************************************/
 
 #include "WheelBase.h"
+#include <ros/ros.h>
 
 
 void WheelBase::set_torque(int torque)
@@ -24,14 +25,19 @@ void WheelBase::ping_motors()
 	uint8_t firmware_version;
 	int error_code;
 
+
 	error_code = _test_motor.pingCommand(_avG_id, &model_number, &firmware_version);
 	if (error_code == 0) ROS_INFO("Motor av gauche OK !"); else ROS_INFO("Motor av gauche NOK");
-	// error_code = _test_motor.pingCommand(_avD_id, &model_number, &firmware_version);
-	// if (error_code == 0) ROS_INFO("Motor av droit OK !"); else ROS_INFO("Motor av droit NOK");
-	// error_code = _test_motor.pingCommand(_arG_id, &model_number, &firmware_version);
-	// if (error_code == 0) ROS_INFO("Motor ar gauche OK !"); else ROS_INFO("Motor ar gauche NOK");
-	// error_code = _test_motor.pingCommand(_arD_id, &model_number, &firmware_version);
-	// if (error_code == 0) ROS_INFO("Motor ar droit OK !"); else ROS_INFO("Motor ar droit NOK");
+	ros::Duration(0.1).sleep();
+	error_code = _test_motor.pingCommand(_avD_id, &model_number, &firmware_version);
+	if (error_code == 0) ROS_INFO("Motor av droit OK !"); else ROS_INFO("Motor av droit NOK");
+	ros::Duration(0.1).sleep();
+	error_code = _test_motor.pingCommand(_arG_id, &model_number, &firmware_version);
+	if (error_code == 0) ROS_INFO("Motor ar gauche OK !"); else ROS_INFO("Motor ar gauche NOK");
+	ros::Duration(0.1).sleep();
+	error_code = _test_motor.pingCommand(_arD_id, &model_number, &firmware_version);
+	if (error_code == 0) ROS_INFO("Motor ar droit OK !"); else ROS_INFO("Motor ar droit NOK");
+	ros::Duration(0.1).sleep();
     
 }
 
@@ -40,20 +46,19 @@ void WheelBase::init_control_mode(int control_mode)
 	uint8_t byte_data = (uint8_t)control_mode;
 	// set control mode
 	_test_motor.writeByteCommand(_avG_id, REG_CONTROL_MODE, 1, &byte_data);
-	// _test_motor.writeByteCommand(_avD_id, REG_CONTROL_MODE, 1, &byte_data);
-	// _test_motor.writeByteCommand(_arD_id, REG_CONTROL_MODE, 1, &byte_data);
-	// _test_motor.writeByteCommand(_arG_id, REG_CONTROL_MODE, 1, &byte_data);
+	_test_motor.writeByteCommand(_avD_id, REG_CONTROL_MODE, 1, &byte_data);
+	_test_motor.writeByteCommand(_arD_id, REG_CONTROL_MODE, 1, &byte_data);
+	_test_motor.writeByteCommand(_arG_id, REG_CONTROL_MODE, 1, &byte_data);
 }
 
-void WheelBase::test_speed(uint16_t target_speed)
+void WheelBase::set_motor_speed(uint16_t *motor_speed)
 {
 	//set all motors to the same speed target
-	uint16_t word_data = (uint16_t)target_speed;
 	
-    //_test_motor.writeWordCommand(_avD_id, REG_GOAL_VELOCITY_DPS_L, 1, &word_data);
-	_test_motor.writeWordCommand(_avG_id, REG_GOAL_VELOCITY_DPS_L, 1, &word_data);
-	//_test_motor.writeWordCommand(_arD_id, REG_GOAL_VELOCITY_DPS_L, 1, &word_data);
-	//_test_motor.writeWordCommand(_arG_id, REG_GOAL_VELOCITY_DPS_L, 1, &word_data);
+	for (int motor_id = 0; motor_id < MOTOR_NUMBER; motor_id++)
+	{
+		_test_motor.writeWordCommand(motor_id, REG_GOAL_VELOCITY_DPS_L, 1, motor_speed[motor_id]);
+	}	
 }
 
 void WheelBase::test_pwm(int target_pwm)
@@ -62,9 +67,9 @@ void WheelBase::test_pwm(int target_pwm)
 	uint16_t word_data = (uint16_t)target_pwm;
 	
     _test_motor.writeWordCommand(_avG_id, REG_GOAL_PWM_100_L, 1, &word_data);
-	//_test_motor.writeWordCommand(_avD_id, REG_GOAL_PWM_100_L, 1, &word_data);
-	//_test_motor.writeWordCommand(_arD_id, REG_GOAL_PWM_100_L, 1, &word_data);
-	//_test_motor.writeWordCommand(_arG_id, REG_GOAL_PWM_100_L, 1, &word_data);
+	_test_motor.writeWordCommand(_avD_id, REG_GOAL_PWM_100_L, 1, &word_data);
+	_test_motor.writeWordCommand(_arD_id, REG_GOAL_PWM_100_L, 1, &word_data);
+	_test_motor.writeWordCommand(_arG_id, REG_GOAL_PWM_100_L, 1, &word_data);
 }
 
 void WheelBase::kill()

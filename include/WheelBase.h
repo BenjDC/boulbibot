@@ -1,7 +1,6 @@
 #ifndef __WheelBase_H__
 #define __WheelBase_H__
 
-#include "Motor.h"
 #include "sm_protocol.h"
 #include "math.h"
 #include <nav_msgs/Odometry.h>
@@ -23,9 +22,9 @@ class WheelBase
 			_test_motor(sm_protocol(500000)){}
 		
 		void test_pwm(int test_pwm);
-		void test_speed(uint16_t test_speed);
+		void set_motor_speed(uint16_t *test_speed);
 		void set_break();
-		void get_speed(uint16_t *test_speed);
+		void get_motor_speed(uint16_t *test_speed);
 		void ping_motors();
 		void init_control_mode(int control_mode);
 		void set_torque(int torque);
@@ -76,6 +75,7 @@ class DiffWheel : public WheelBase
 };
 
 #define WHEEL_DISTANCE	0.20
+#define MOTOR_NUMBER	4
 
 #define XSPEED_MAX 		0.80 	// m.s
 #define XSACC_MAX 		0.10 	// m.s2

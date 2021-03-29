@@ -1,16 +1,10 @@
 
 
-//Period in microseconds
-#define BOULBI_TEENSY_PERIOD 2000
-
 // Motors ID 
 #define AV_G_ID 0
 #define AV_D_ID 1
 #define AR_G_ID 2
-#define AR_D_ID 4
-
-
-
+#define AR_D_ID 3
 
 
 //Ros callbacks
