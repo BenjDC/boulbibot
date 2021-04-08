@@ -12,10 +12,11 @@ void WheelBase::set_torque(int torque)
 	uint8_t byte_data = (uint8_t)torque;
 	// enable torque
 	byte_data = 1;
-	_test_motor.writeByteCommand(_avG_id, REG_TORQUE_ENABLE, 1, &byte_data);
-	_test_motor.writeByteCommand(_avD_id, REG_TORQUE_ENABLE, 1, &byte_data);
-	_test_motor.writeByteCommand(_arD_id, REG_TORQUE_ENABLE, 1, &byte_data);
-	_test_motor.writeByteCommand(_arG_id, REG_TORQUE_ENABLE, 1, &byte_data);
+
+	for (int motor_id = 0; motor_id < MOTOR_NUMBER; motor_id++)
+	{
+		_test_motor.writeByteCommand(motor_id, REG_TORQUE_ENABLE, 1, &byte_data);
+	}
 	
 }
 
@@ -25,30 +26,25 @@ void WheelBase::ping_motors()
 	uint8_t firmware_version;
 	int error_code;
 
-
-	error_code = _test_motor.pingCommand(_avG_id, &model_number, &firmware_version);
-	if (error_code == 0) ROS_INFO("Motor av gauche OK !"); else ROS_INFO("Motor av gauche NOK");
-	ros::Duration(0.1).sleep();
-	error_code = _test_motor.pingCommand(_avD_id, &model_number, &firmware_version);
-	if (error_code == 0) ROS_INFO("Motor av droit OK !"); else ROS_INFO("Motor av droit NOK");
-	ros::Duration(0.1).sleep();
-	error_code = _test_motor.pingCommand(_arG_id, &model_number, &firmware_version);
-	if (error_code == 0) ROS_INFO("Motor ar gauche OK !"); else ROS_INFO("Motor ar gauche NOK");
-	ros::Duration(0.1).sleep();
-	error_code = _test_motor.pingCommand(_arD_id, &model_number, &firmware_version);
-	if (error_code == 0) ROS_INFO("Motor ar droit OK !"); else ROS_INFO("Motor ar droit NOK");
-	ros::Duration(0.1).sleep();
-    
+	for (int motor_id = 0; motor_id < MOTOR_NUMBER; motor_id++)
+	{
+		error_code = _test_motor.pingCommand(motor_id, &model_number, &firmware_version);
+		if (error_code == 0) ROS_INFO("Motor %i OK !", motor_id); else ROS_INFO("Motor %i NOK", motor_id);
+		_test_motor.enableLed(motor_id);
+		ros::Duration(0.5).sleep();
+	}  
 }
 
 void WheelBase::init_control_mode(int control_mode)
 {
 	uint8_t byte_data = (uint8_t)control_mode;
 	// set control mode
-	_test_motor.writeByteCommand(_avG_id, REG_CONTROL_MODE, 1, &byte_data);
-	_test_motor.writeByteCommand(_avD_id, REG_CONTROL_MODE, 1, &byte_data);
-	_test_motor.writeByteCommand(_arD_id, REG_CONTROL_MODE, 1, &byte_data);
-	_test_motor.writeByteCommand(_arG_id, REG_CONTROL_MODE, 1, &byte_data);
+
+	for (int motor_id = 0; motor_id < MOTOR_NUMBER; motor_id++)
+	{
+		_test_motor.writeByteCommand(motor_id, REG_CONTROL_MODE, 1, &byte_data);
+		_test_motor.disableLed(motor_id);
+	}
 }
 
 void WheelBase::set_motor_speed(uint16_t *motor_speed)
@@ -57,7 +53,7 @@ void WheelBase::set_motor_speed(uint16_t *motor_speed)
 	
 	for (int motor_id = 0; motor_id < MOTOR_NUMBER; motor_id++)
 	{
-		_test_motor.writeWordCommand(motor_id, REG_GOAL_VELOCITY_DPS_L, 1, motor_speed[motor_id]);
+		_test_motor.writeWordCommand(motor_id, REG_GOAL_VELOCITY_DPS_L, 1, &motor_speed[motor_id]);
 	}	
 }
 
@@ -65,11 +61,11 @@ void WheelBase::test_pwm(int target_pwm)
 {
 	//set all motors to the same PWM target
 	uint16_t word_data = (uint16_t)target_pwm;
-	
-    _test_motor.writeWordCommand(_avG_id, REG_GOAL_PWM_100_L, 1, &word_data);
-	_test_motor.writeWordCommand(_avD_id, REG_GOAL_PWM_100_L, 1, &word_data);
-	_test_motor.writeWordCommand(_arD_id, REG_GOAL_PWM_100_L, 1, &word_data);
-	_test_motor.writeWordCommand(_arG_id, REG_GOAL_PWM_100_L, 1, &word_data);
+
+	for (int motor_id = 0; motor_id < MOTOR_NUMBER; motor_id++)
+	{
+		_test_motor.writeWordCommand(motor_id, REG_GOAL_PWM_100_L, 1, &word_data);
+	}
 }
 
 void WheelBase::kill()
@@ -78,40 +74,14 @@ void WheelBase::kill()
 	ROS_INFO("killin' boulbi");
 }
 
-void WheelBase::get_speed(uint16_t *test_speed)
+void WheelBase::get_speed()
 {
-	uint16_t word_data;
+	int error;
 
-	_test_motor.readWordCommand(_avG_id, REG_PRESENT_VELOCITY_DPS_L, 1, &word_data);
-	_avG_speed = word_data;
-	
-	// _test_motor.readWordCommand(_avD_id, REG_PRESENT_VELOCITY_DPS_L, 1, &word_data);
-	// _avD_speed = word_data;
-
-	// _test_motor.readWordCommand(_arG_id, REG_PRESENT_VELOCITY_DPS_L, 1, &word_data);
-	// _arG_speed = word_data;
-
-	// _test_motor.readWordCommand(_arD_id, REG_PRESENT_VELOCITY_DPS_L, 1, &word_data);
-	// _arD_speed = word_data;
-
-	*test_speed = _avG_speed;
-
-
-	
-	//TODO
-	//linear x speed is mean of all motor linear speed
-	//_odom.x_speed = (rpm_to_ms(_AvG.get_speed()) + \
-			   rpm_to_ms(_AvD.get_speed()) + \
-			   rpm_to_ms(_ArG.get_speed()) + \
-			   rpm_to_ms(_ArD.get_speed()))/4;
-
-	//y speed : todo
-	
-	//angular speed is difference between left and right speed
-	//_odom.ang_speed = (((rpm_to_ms(_AvG.get_speed()) + rpm_to_ms(_ArG.get_speed()))/2 - \
-			//   ((rpm_to_ms(_AvD.get_speed())  + rpm_to_ms(_ArD.get_speed()))/2))/2) 
-			// 		/ (float)(WHEEL_DISTANCE * PI);	
-
+	for (int motor_id = 0; motor_id < MOTOR_NUMBER; motor_id++)
+	{
+		_motor_speed[motor_id]= _test_motor.getVelocity(motor_id, &error);
+	}
 }
 
 nav_msgs::Odometry WheelBase::update_position()

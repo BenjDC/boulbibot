@@ -9,22 +9,13 @@
 class WheelBase
 {
 	public:
-		WheelBase(int avG_id, int avD_id, int arG_id, int arD_id):
-			_avG_id(avG_id),
-			_avD_id(avD_id),
-			_arG_id(arG_id),
-			_arD_id(arD_id),
-			_avG_speed(0),
-			_avD_speed(0),
-			_arG_speed(0),
-			_arD_speed(0),
-			_last_time(0),
+		WheelBase():
 			_test_motor(sm_protocol(500000)){}
 		
 		void test_pwm(int test_pwm);
 		void set_motor_speed(uint16_t *test_speed);
 		void set_break();
-		void get_motor_speed(uint16_t *test_speed);
+		void get_speed();
 		void ping_motors();
 		void init_control_mode(int control_mode);
 		void set_torque(int torque);
@@ -39,14 +30,7 @@ class WheelBase
 		
 		
 	private:
-		int _avG_id;
-		int _avD_id;
-		int _arG_id;
-		int _arD_id;
-		int _avG_speed;
-		int _avD_speed;
-		int _arD_speed;
-		int _arG_speed;
+		float _motor_speed[4];
 		int _last_time;		// µs
 		sm_protocol _test_motor;
 		//custom compact odometry structure
@@ -56,8 +40,8 @@ class WheelBase
 class OmniWheel : public WheelBase
 {
 	public:
-		OmniWheel(int avG_id, int avD_id, int arG_id, int arD_id):
-		WheelBase(avG_id, avD_id, arG_id, arD_id){}
+		OmniWheel():
+		WheelBase(){}
 
 		void set_motors(float xspeed, float yspeed, float wspeed);
 	private:
@@ -67,8 +51,8 @@ class OmniWheel : public WheelBase
 class DiffWheel : public WheelBase
 {
 	public:
-		DiffWheel(int avG_id, int avD_id, int arG_id, int arD_id):
-		WheelBase(avG_id, avD_id, arG_id, arD_id){}
+		DiffWheel():
+		WheelBase(){}
 		void set_motors(float xspeed, float yspeed, float wspeed);
 	private:
 		float _get_wheel_diameter(){return 80.0;}		

@@ -2,9 +2,9 @@
 
 // Motors ID 
 #define AV_G_ID 0
-#define AV_D_ID 1
-#define AR_G_ID 2
-#define AR_D_ID 3
+#define AR_G_ID 1
+#define AR_D_ID 2
+#define AV_D_ID 3
 
 
 //Ros callbacks
