@@ -7,8 +7,8 @@
 #include <WiFi.h>
 
 
-const char* ssid     = "SFR-5718";
-const char* password = "2HI5D6N3NX3UTL56TTHL";
+const char* ssid     = "foo";
+const char* password = "bar";
 
 //ros handle object
 ros::NodeHandle  nh;
