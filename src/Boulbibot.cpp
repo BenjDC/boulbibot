@@ -29,7 +29,7 @@ Fonctionnalités:
 //#define PWM_TEST
 
 
-DiffWheel *boulbi;
+OmniWheel *boulbi;
 
 // ros publishers definitions
 std_msgs::Int16 actual_speed;
@@ -48,16 +48,16 @@ void joy_cb( const sensor_msgs::Joy& cmd_msg)
 #endif
 
 #ifdef SPEED_TEST
-  target_speed.data = (int16_t)(cmd_msg.axes[1] * 1000);
-  uint16_t speed[4];
+  int x_speed = (int16_t)(cmd_msg.axes[1] * 1000);
+  int y_speed = (int16_t)(cmd_msg.axes[0] * 1000);
+  
+  //target_speed.data = 
+  //uint16_t speed;
 
-  for (int motor_id = 0; motor_id < 4; motor_id++)
-  {
-     speed[motor_id] = (uint16_t)target_speed.data;
-  }
-
-  target_pub.publish(target_speed);
-  boulbi->set_motor_speed(speed);
+  //speed = (uint16_t)target_speed.data;
+  
+  //target_pub.publish(target_speed);
+  boulbi->set_motors(x_speed, y_speed, 0);
 
 
 #endif
@@ -68,7 +68,7 @@ void joy_cb( const sensor_msgs::Joy& cmd_msg)
 int main (int argc, char *argv[])
 {
 
-  DiffWheel boulbi_bot;
+  OmniWheel boulbi_bot;
   boulbi = &boulbi_bot;
 
   target_speed.data = 0;
@@ -95,7 +95,14 @@ int main (int argc, char *argv[])
 
   
   boulbi->ping_motors();
+
+#ifdef SPEED_TEST
   boulbi->init_control_mode(REG_CONTROL_MODE_VELOCITY_TORQUE);
+#endif
+
+#ifdef PWM_TEST
+boulbi->init_control_mode(REG_CONTROL_MODE_PWM);
+#endif
 
   boulbi->set_torque(1);
 
@@ -109,10 +116,10 @@ int main (int argc, char *argv[])
     ros::spinOnce();
     
 
-    boulbi->get_speed();
-    //actual_speed.data = a_speed;
+    actual_speed.data = boulbi->get_speed();
     
-    //speed_pub.publish(actual_speed);
+    
+    speed_pub.publish(actual_speed);
     
 
     //ROS_INFO("loop %i ok", loop++);

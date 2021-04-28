@@ -13,9 +13,9 @@ class WheelBase
 			_test_motor(sm_protocol(500000)){}
 		
 		void test_pwm(int test_pwm);
-		void set_motor_speed(uint16_t *test_speed);
+		void set_motor_speed(uint16_t test_speed);
 		void set_break();
-		void get_speed();
+		int get_speed();
 		void ping_motors();
 		void init_control_mode(int control_mode);
 		void set_torque(int torque);
@@ -24,6 +24,7 @@ class WheelBase
 		virtual void set_motors(float xspeed, float yspeed, float wspeed) = 0;
 		
 	protected:
+		sm_protocol _test_motor;
 		virtual float _get_wheel_diameter() = 0;
 		float rpm_to_ms(int rpm_speed){return (rpm_speed * M_PI * _get_wheel_diameter() * 60 / 1000);}
 		int ms_to_rpm(float ms_speed){return (int)((ms_speed * 1000) / (M_PI * _get_wheel_diameter() * 60 ));}
@@ -32,7 +33,7 @@ class WheelBase
 	private:
 		float _motor_speed[4];
 		int _last_time;		// µs
-		sm_protocol _test_motor;
+		
 		//custom compact odometry structure
 		nav_msgs::Odometry _odom;
 };

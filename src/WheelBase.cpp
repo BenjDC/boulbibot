@@ -47,14 +47,23 @@ void WheelBase::init_control_mode(int control_mode)
 	}
 }
 
-void WheelBase::set_motor_speed(uint16_t *motor_speed)
+void WheelBase::set_motor_speed(uint16_t motor_speed)
 {
 	//set all motors to the same speed target
+
+
 	
 	for (int motor_id = 0; motor_id < MOTOR_NUMBER; motor_id++)
 	{
-		_test_motor.writeWordCommand(motor_id, REG_GOAL_VELOCITY_DPS_L, 1, &motor_speed[motor_id]);
-	}	
+		if ((motor_id % 2 ) == 0)
+		{
+			_test_motor.setVelocityLimit(motor_id, motor_speed);
+		}
+		else
+		{
+			_test_motor.setVelocityLimit(motor_id, -motor_speed);
+		}
+	}
 }
 
 void WheelBase::test_pwm(int target_pwm)
@@ -74,14 +83,19 @@ void WheelBase::kill()
 	ROS_INFO("killin' boulbi");
 }
 
-void WheelBase::get_speed()
+int WheelBase::get_speed()
 {
 	int error;
 
+	int sum_speed = 0;
+
 	for (int motor_id = 0; motor_id < MOTOR_NUMBER; motor_id++)
 	{
-		_motor_speed[motor_id]= _test_motor.getVelocity(motor_id, &error);
+		_motor_speed[motor_id] = _test_motor.getVelocity(motor_id, &error);
+		sum_speed += _motor_speed[motor_id];
 	}
+
+	return (int)(sum_speed / MOTOR_NUMBER);
 }
 
 nav_msgs::Odometry WheelBase::update_position()
@@ -106,7 +120,36 @@ nav_msgs::Odometry WheelBase::update_position()
 
 void OmniWheel::set_motors(float xspeed, float yspeed, float wspeed)
 {
-	//TODO
+	//x speed management : 
+	int motor_speed[MOTOR_NUMBER];
+
+
+	for (int motor_id = 0; motor_id < MOTOR_NUMBER; motor_id++)
+	{
+		if ((motor_id % 2 ) == 0)
+		{
+			motor_speed[motor_id] = xspeed;
+		}
+		else
+		{
+			motor_speed[motor_id] = -xspeed;
+		}
+	}
+
+	//y speed management
+	for (int motor_id = 0; motor_id < MOTOR_NUMBER; motor_id++)
+	{
+		motor_speed[motor_id] += yspeed;		
+	}
+
+	for (int motor_id = 0; motor_id < MOTOR_NUMBER; motor_id++)
+	{
+		_test_motor.setVelocityLimit(motor_id, motor_speed[motor_id]);
+	}
+
+
+
+
 }
 
 void DiffWheel::set_motors(float xspeed, float yspeed, float wspeed)
