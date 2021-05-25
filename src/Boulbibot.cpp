@@ -50,6 +50,8 @@ void joy_cb( const sensor_msgs::Joy& cmd_msg)
 #ifdef SPEED_TEST
   int x_speed = (int16_t)(cmd_msg.axes[1] * 1000);
   int y_speed = (int16_t)(cmd_msg.axes[0] * 1000);
+
+  int rotate_speed = (int16_t)(cmd_msg.axes[3] * 1000);
   
   //target_speed.data = 
   //uint16_t speed;
@@ -57,7 +59,7 @@ void joy_cb( const sensor_msgs::Joy& cmd_msg)
   //speed = (uint16_t)target_speed.data;
   
   //target_pub.publish(target_speed);
-  boulbi->set_motors(x_speed, y_speed, 0);
+  boulbi->set_motors(x_speed, y_speed, rotate_speed);
 
 
 #endif
@@ -103,6 +105,8 @@ int main (int argc, char *argv[])
 #ifdef PWM_TEST
 boulbi->init_control_mode(REG_CONTROL_MODE_PWM);
 #endif
+
+  
 
   boulbi->set_torque(1);
 

@@ -51,18 +51,27 @@ void WheelBase::set_motor_speed(uint16_t motor_speed)
 {
 	//set all motors to the same speed target
 
+	uint16_t speed_data = (uint16_t)motor_speed;
+	uint16_t speed_data_inv = (uint16_t)(-motor_speed);
+
+
+
 
 	
 	for (int motor_id = 0; motor_id < MOTOR_NUMBER; motor_id++)
 	{
+		_test_motor.writeWordCommand(motor_id, REG_GOAL_VELOCITY_DPS_L, 1, &speed_data);
+
+		/*
 		if ((motor_id % 2 ) == 0)
 		{
-			_test_motor.setVelocityLimit(motor_id, motor_speed);
+			_test_motor.writeWordCommand(motor_id, REG_GOAL_VELOCITY_DPS_L, 1, &speed_data);
 		}
 		else
 		{
-			_test_motor.setVelocityLimit(motor_id, -motor_speed);
+			_test_motor.writeWordCommand(motor_id, REG_GOAL_VELOCITY_DPS_L, 1, &speed_data_inv);
 		}
+		*/
 	}
 }
 
@@ -126,7 +135,8 @@ void OmniWheel::set_motors(float xspeed, float yspeed, float wspeed)
 
 	for (int motor_id = 0; motor_id < MOTOR_NUMBER; motor_id++)
 	{
-		if ((motor_id % 2 ) == 0)
+		
+		if ((motor_id > 1 ) == 0)
 		{
 			motor_speed[motor_id] = xspeed;
 		}
@@ -136,15 +146,32 @@ void OmniWheel::set_motors(float xspeed, float yspeed, float wspeed)
 		}
 	}
 
+	//w speed management
+	for (int motor_id = 0; motor_id < MOTOR_NUMBER; motor_id++)
+	{
+		motor_speed[motor_id] -= wspeed;		
+	}
+
 	//y speed management
 	for (int motor_id = 0; motor_id < MOTOR_NUMBER; motor_id++)
 	{
-		motor_speed[motor_id] += yspeed;		
+		if ((motor_id % 2 ) != 0)
+		{
+			motor_speed[motor_id] += yspeed;
+		}
+		else
+		{
+			motor_speed[motor_id] += -yspeed;
+		}
+		
 	}
+
 
 	for (int motor_id = 0; motor_id < MOTOR_NUMBER; motor_id++)
 	{
-		_test_motor.setVelocityLimit(motor_id, motor_speed[motor_id]);
+		uint16_t speed_goal = (uint16_t)motor_speed[motor_id];
+		_test_motor.writeWordCommand(motor_id, REG_GOAL_VELOCITY_DPS_L, 1, &speed_goal);
+		//_test_motor.setVelocityLimit(motor_id, );
 	}
 
 
