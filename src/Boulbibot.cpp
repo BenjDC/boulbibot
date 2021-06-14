@@ -9,16 +9,11 @@ Fonctionnalités:
 
 *************************************************************/
 
-#include <ros/ros.h>
-#include <sensor_msgs/Joy.h>
-#include <geometry_msgs/Twist.h>
-#include <std_msgs/Int16MultiArray.h>
-#include <std_msgs/Int16.h>
-#include <std_msgs/Float32.h>
+#include "rclcpp/rclcpp.hpp"
 
-#include "std_msgs/MultiArrayLayout.h"
-#include "std_msgs/MultiArrayDimension.h"
-#include "std_msgs/Float32MultiArray.h"
+#include <sensor_msgs/msgs/joy.h>
+#include <geometry_msgs/msgs/twist.h>
+#include <std_msgs/msgs/Int16.h>
 
 #include "WheelBase.h"
 #include "Boulbibot.h"
@@ -80,9 +75,13 @@ int main (int argc, char *argv[])
 
   uint16_t a_speed[4];
 
+
+  rclcpp::init(argc, argv);
+  auto nh = rclcpp::Node::make_shared("talker");
+
+
   ROS_INFO("Hello boulbibot !");
-  ros::init(argc, argv, "test_motor");
-  ros::NodeHandle nh;
+
  
   target_pub = nh.advertise<std_msgs::Int16>("target_speed", 50);
   ros::Publisher speed_pub = nh.advertise<std_msgs::Int16>("actual_speed", 50);
