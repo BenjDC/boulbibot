@@ -11,9 +11,14 @@ Fonctionnalités:
 
 #include "rclcpp/rclcpp.hpp"
 
-#include <sensor_msgs/msgs/joy.h>
-#include <geometry_msgs/msgs/twist.h>
-#include <std_msgs/msgs/Int16.h>
+
+
+#include "std_msgs/msg/string.hpp"
+//#include "std_msgs/msgs/Int16.hpp"
+#include "sensor_msgs/msg/joy.hpp"
+
+
+//#include "geometry_msgs/msgs/Twist.hpp"
 
 #include "WheelBase.h"
 #include "Boulbibot.h"
@@ -27,8 +32,8 @@ Fonctionnalités:
 OmniWheel *boulbi;
 
 // ros publishers definitions
-std_msgs::Int16 actual_speed;
-std_msgs::Int16 target_speed;
+//std_msgs::Int16 actual_speed;
+//std_msgs::Int16 target_speed;
 
 ros::Publisher target_pub;
 
@@ -68,33 +73,27 @@ int main (int argc, char *argv[])
   OmniWheel boulbi_bot;
   boulbi = &boulbi_bot;
 
-  target_speed.data = 0;
-  actual_speed.data = 0;
+  //target_speed.data = 0;
+  //actual_speed.data = 0;
 
   int loop = 0;
 
   uint16_t a_speed[4];
 
-
   rclcpp::init(argc, argv);
   auto nh = rclcpp::Node::make_shared("talker");
 
-
   ROS_INFO("Hello boulbibot !");
 
- 
-  target_pub = nh.advertise<std_msgs::Int16>("target_speed", 50);
-  ros::Publisher speed_pub = nh.advertise<std_msgs::Int16>("actual_speed", 50);
+  rclcpp::Rate loop_rate(10);
 
-  //ros::Subscriber speed_sub = nh.subscribe("actual_speed", 100, actual_speed_cb);
+
+
+  joy_sub = this->create_subscription<sensor_msgs::msg::Joy >("joy", 100, std::bind(&MinimalSubscriber::topic_callback, this, _1));
+
   ros::Subscriber joy_sub = nh.subscribe("joy", 100, joy_cb);
-  
-
-  
-  
   ros::Rate loop_rate(20);
 
-  
   boulbi->ping_motors();
 
 #ifdef SPEED_TEST
@@ -117,15 +116,6 @@ boulbi->init_control_mode(REG_CONTROL_MODE_PWM);
   {
     //
     ros::spinOnce();
-    
-
-    actual_speed.data = boulbi->get_speed();
-    
-    
-    speed_pub.publish(actual_speed);
-    
-
-    //ROS_INFO("loop %i ok", loop++);
         
     loop_rate.sleep();
   }
