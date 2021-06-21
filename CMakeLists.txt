@@ -19,6 +19,8 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(geometry_msgs)
 
 # uncomment the following section in order to fill in
 # further dependencies manually.
@@ -29,7 +31,7 @@ find_package(std_msgs REQUIRED)
 
 
 add_executable(boulbibot src/Boulbibot.cpp src/WheelBase.cpp src/sm_protocol.cpp src/port_handler.cpp src/port_handler_linux.cpp)
-ament_target_dependencies(boulbibot rclcpp std_msgs)
+ament_target_dependencies(boulbibot rclcpp std_msgs sensor_msgs)
 
 
 target_include_directories(boulbibot
