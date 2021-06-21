@@ -3,7 +3,7 @@
 
 #include "sm_protocol.h"
 #include "math.h"
-#include <nav_msgs/Odometry.h>
+#include "nav_msgs/msg/odometry.hpp"
 
 
 class WheelBase
@@ -20,7 +20,8 @@ class WheelBase
 		void init_control_mode(int control_mode);
 		void set_torque(int torque);
 		void kill();
-		nav_msgs::Odometry update_position();
+		
+		nav_msgs::msg::Odometry update_position();
 		virtual void set_motors(float xspeed, float yspeed, float wspeed) = 0;
 		
 	protected:
@@ -35,7 +36,7 @@ class WheelBase
 		int _last_time;		// µs
 		
 		//custom compact odometry structure
-		nav_msgs::Odometry _odom;
+		nav_msgs::msg::Odometry _odom;
 };
 
 class OmniWheel : public WheelBase

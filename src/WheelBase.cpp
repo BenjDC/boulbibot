@@ -4,7 +4,6 @@ Benjamin De Coninck
 *************************************************************/
 
 #include "WheelBase.h"
-#include <ros/ros.h>
 
 
 void WheelBase::set_torque(int torque)
@@ -29,9 +28,9 @@ void WheelBase::ping_motors()
 	for (int motor_id = 0; motor_id < MOTOR_NUMBER; motor_id++)
 	{
 		error_code = _test_motor.pingCommand(motor_id, &model_number, &firmware_version);
-		if (error_code == 0) ROS_INFO("Motor %i OK !", motor_id); else ROS_INFO("Motor %i NOK", motor_id);
+		//if (error_code == 0) ROS_INFO("Motor %i OK !", motor_id); else ROS_INFO("Motor %i NOK", motor_id);
 		_test_motor.enableLed(motor_id);
-		ros::Duration(0.5).sleep();
+		//ros::Duration(0.5).sleep();
 	}  
 }
 
@@ -89,7 +88,7 @@ void WheelBase::test_pwm(int target_pwm)
 void WheelBase::kill()
 {
 	//TODO
-	ROS_INFO("killin' boulbi");
+	//ROS_INFO("killin' boulbi");
 }
 
 int WheelBase::get_speed()
@@ -107,7 +106,7 @@ int WheelBase::get_speed()
 	return (int)(sum_speed / MOTOR_NUMBER);
 }
 
-nav_msgs::Odometry WheelBase::update_position()
+nav_msgs::msg::Odometry WheelBase::update_position()
 {
 
 	//TODO

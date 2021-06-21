@@ -1,8 +1,7 @@
 #include "sm_protocol.h"
-#include <ros/ros.h>
 #include <string.h>
 #include <time.h>
-
+#include <sys/time.h>
 
 
 
@@ -494,10 +493,6 @@ int sm_protocol::receiveStatusPacket(uint8_t id, unsigned long timeout_us)
         if (MySerial->getBytesAvailable() > 0)
         {
             int inBytes = MySerial->readPort(rx_packet_buffer, RX_BUFFER_SIZE);
-            if (verbose >= 1)
-            {
-                ROS_INFO("[PROTOCOL] read %i bytes", inBytes);
-            }
 
             if (inBytes >= 0)
             {
@@ -507,22 +502,9 @@ int sm_protocol::receiveStatusPacket(uint8_t id, unsigned long timeout_us)
                     // one packet received
                     if ((rx_packet_id == id) || (id == 0xFE))
                     {
-
-                        // received packet id is the one expected, or just receive any id after broacast
-                        if (verbose >= 1)
-                        {
-                            ROS_INFO("reply delay: %lu us", micros() - start_time);
-                        }
-                        if (verbose == 2)
-                        {
-                            ROS_INFO(", rx_packet_payload_length: %i bytes", rx_packet_payload_length);
-                        }
                         // check instruction (status return packet)
                         rx_packet_instruction = rx_packet_buffer[PKT_INSTRUCTION];
-                        if (verbose == 2)
-                        {
-                            ROS_INFO("rx_packet_instruction: %i", rx_packet_instruction);
-                        }
+                        
                         if (rx_packet_instruction == INSTR_STATUS)
                         {
                             // good instruction (return)
@@ -532,28 +514,17 @@ int sm_protocol::receiveStatusPacket(uint8_t id, unsigned long timeout_us)
                         }
                         else
                         {
-                            ROS_INFO("[PROTOCOL] ERROR : Received an unexpected packet!");
                             return -1;
                         }
                     }
                     else
                     {
-                        ROS_INFO("[PROTOCOL] OH NO : Received packet from another ID!");
                         return -1;
                     }
-                }
-                else
-                {
-                    ROS_INFO("[PROTOCOL] OH NO : PACKET NOT DECODED");
                 }
             }
         }
     }
-    int timeout = micros() - start_time;
-    if (verbose >= 1)
-                        {
-    ROS_INFO("[PROTOCOL] ERROR : Time-out! waited %i ms", timeout);
-                        }
     return -2;
 }
 
@@ -561,25 +532,21 @@ bool sm_protocol::decodePacket(int inBytes)
 {
     if (rx_packet_buffer[PKT_HEADER0] != 0xFF)
     {
-        ROS_INFO("[PROTOCOL] : HEADER0 error");
         return false;
     }
 
     if (rx_packet_buffer[PKT_HEADER1] != 0xFF)
     {
-        ROS_INFO("[PROTOCOL] : HEADER1 error");
         return false;
     }
 
     if (rx_packet_buffer[PKT_HEADER2] != 0xFD)
     {
-        ROS_INFO("[PROTOCOL] : HEADER2 error");
         return false;
     }
 
     if (rx_packet_buffer[PKT_RESERVED] != 0)
     {
-        ROS_INFO("[PROTOCOL] : RESERVED byte error");
         return false;
     }
 
@@ -589,7 +556,6 @@ bool sm_protocol::decodePacket(int inBytes)
     if (rx_packet_payload_length + PKT_LENGTH_H > RX_BUFFER_SIZE)
     {
 
-        ROS_INFO("[PROTOCOL] ERROR : Received packet too long!");
         return false;
     }
 
@@ -602,7 +568,6 @@ bool sm_protocol::decodePacket(int inBytes)
     }
     else
     {
-        ROS_INFO("[PROTOCOL] ERROR : CRC check FAILED! %x", rx_packet_crc);
         return false;
     }
 
@@ -615,5 +580,5 @@ unsigned long sm_protocol::micros()
     struct timeval tv;
     gettimeofday(&tv, NULL);
     return tv.tv_usec;
-    1000000 * tv.tv_sec + tv.tv_usec;
+    //1000000 * tv.tv_sec + tv.tv_usec;
 }

@@ -24,8 +24,18 @@ find_package(std_msgs REQUIRED)
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
 
-add_executable(boulbibot src/Boulbibot.cpp)
+
+
+
+
+add_executable(boulbibot src/Boulbibot.cpp src/WheelBase.cpp src/sm_protocol.cpp src/port_handler.cpp src/port_handler_linux.cpp)
 ament_target_dependencies(boulbibot rclcpp std_msgs)
+
+
+target_include_directories(boulbibot
+    PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>)
 
 install(TARGETS
   boulbibot
