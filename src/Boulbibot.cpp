@@ -23,7 +23,7 @@ Fonctionnalités:
 #include "WheelBase.h"
 #include "Boulbibot.h"
 //#include "Motor.h"
-#include <pigpiod_if2.h>
+//#include <pigpiod_if2.h>
 
 #define SPEED_TEST
 //#define PWM_TEST

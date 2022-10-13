@@ -15,22 +15,23 @@ class WheelBase
 		void test_pwm(int test_pwm);
 		void set_motor_speed(uint16_t test_speed);
 		void set_break();
-		int get_speed();
+		virtual void update_speed();
 		void ping_motors();
 		void init_control_mode(int control_mode);
 		void set_torque(int torque);
 		void kill();
-		nav_msgs::Odometry update_position();
+		virtual nav_msgs::Odometry update_position();
 		virtual void set_motors(float xspeed, float yspeed, float wspeed) = 0;
 		
 	protected:
 		sm_protocol _test_motor;
 		virtual float _get_wheel_diameter() = 0;
+		virtual float _get_wheeltrain_width() = 0;
 		float rpm_to_ms(int rpm_speed){return (rpm_speed * M_PI * _get_wheel_diameter() * 60 / 1000);}
 		int ms_to_rpm(float ms_speed){return (int)((ms_speed * 1000) / (M_PI * _get_wheel_diameter() * 60 ));}
 		
 		
-	private:
+	//private:
 		float _motor_speed[4];
 		int _last_time;		// µs
 		
@@ -44,9 +45,12 @@ class OmniWheel : public WheelBase
 		OmniWheel():
 		WheelBase(){}
 
+		void update_speed();
+		nav_msgs::Odometry update_position();
 		void set_motors(float xspeed, float yspeed, float wspeed);
 	private:
-		float _get_wheel_diameter(){return 60.0;}		
+		float _get_wheel_diameter(){return 60.0;}
+		float _get_wheeltrain_width(){return 0.2;}
 };
 
 class DiffWheel : public WheelBase
@@ -54,9 +58,12 @@ class DiffWheel : public WheelBase
 	public:
 		DiffWheel():
 		WheelBase(){}
+		void update_speed();
+		nav_msgs::Odometry update_position();
 		void set_motors(float xspeed, float yspeed, float wspeed);
 	private:
-		float _get_wheel_diameter(){return 80.0;}		
+		float _get_wheel_diameter(){return 80.0;}
+		float _get_wheeltrain_width(){return 0.180;}
 };
 
 #define WHEEL_DISTANCE	0.20
@@ -64,8 +71,8 @@ class DiffWheel : public WheelBase
 
 #define XSPEED_MAX 		0.80 	// m.s
 #define XSACC_MAX 		0.10 	// m.s2
-#define WSPEED_MAX  	40.0	// d.s
-#define WACC_MAX  		30.0	// d.s2
+#define WSPEED_MAX  	40.0 /  (M_PI * 2) 	// d.s
+#define WACC_MAX  		30.0  / (M_PI * 2)	// d.s2
 #define JOY_MAX  		0.5 	// no unit
 
 #endif

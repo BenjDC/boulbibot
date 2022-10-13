@@ -4,6 +4,7 @@ Benjamin De Coninck
 *************************************************************/
 
 #include "WheelBase.h"
+#include "Boulbibot.h"
 #include <ros/ros.h>
 
 
@@ -92,7 +93,20 @@ void WheelBase::kill()
 	ROS_INFO("killin' boulbi");
 }
 
-int WheelBase::get_speed()
+
+void DiffWheel::update_speed()
+{
+	int error;
+
+	uint16_t goal_ArG = _test_motor.getVelocity(AR_G_ID, &error);
+	uint16_t goal_ArD = _test_motor.getVelocity(AR_D_ID, &error);
+
+	_odom.y_speed = rpm_to_ms((goal_ArG + goal_ArD)/2);
+	_odom.ang_speed =  atan2(rpm_to_ms((goal_ArG + goal_ArD)/2), _get_wheeltrain_width)
+
+}
+
+void OmniWheel::update_speed()
 {
 	int error;
 
@@ -104,15 +118,33 @@ int WheelBase::get_speed()
 		sum_speed += _motor_speed[motor_id];
 	}
 
-	return (int)(sum_speed / MOTOR_NUMBER);
+	//return (int)(sum_speed / MOTOR_NUMBER);
 }
 
-nav_msgs::Odometry WheelBase::update_position()
+nav_msgs::Odometry OmniWheel::update_position()
 {
+	update_speed();
 
-	//TODO
-	//get_speed();
+	int current_time = micros();
+	float delta_time = (current_time - _last_time)/1000000; // time delta in seconds
+	_last_time = current_time;
 
+
+
+
+	
+
+	_odom.ang_pos += _odom.ang_speed * delta_time;	
+	_odom.x_pos += (_odom.x_speed * cos((_odom.ang_pos /180) * PI) + \
+	 			      _odom.y_speed * sin((_odom.ang_pos /180) * PI)) * delta_time;
+	_odom.y_pos += (_odom.x_speed * sin((_odom.ang_pos /180) * PI) + \
+	 			      _odom.y_speed * cos((_odom.ang_pos /180) * PI)) * delta_time;
+
+	return _odom;
+}
+
+nav_msgs::Odometry DiffWheel::update_position()
+{
 	// int current_time = micros();
 	// float delta_time = (current_time - _last_time)/1000000; // time delta in seconds
 	// _last_time = current_time;
@@ -181,17 +213,16 @@ void OmniWheel::set_motors(float xspeed, float yspeed, float wspeed)
 
 void DiffWheel::set_motors(float xspeed, float yspeed, float wspeed)
 {
-	//TODO 
-	
 	// yspeed is disregarded for the differential transmission motor
-	// float lin_xspeed = ms_to_rpm(xspeed * XSPEED_MAX / JOY_MAX);
-    // float lin_wspeed = ms_to_rpm((WHEEL_DISTANCE * (wspeed * WSPEED_MAX / JOY_MAX) * PI)/360); 
+	float lin_xspeed = ms_to_rpm(xspeed * XSPEED_MAX / JOY_MAX);
+    float lin_wspeed = ms_to_rpm(_get_wheeltrain_width() * wspeed * 2 * M_PI); 
 	
-	//TODO
-	// _AvG.set_speed(lin_xspeed + lin_wspeed);
-	// _AvD.set_speed(lin_xspeed + lin_wspeed);
-	// _ArG.set_speed(lin_xspeed - lin_wspeed);
-	// _ArD.set_speed(lin_xspeed - lin_wspeed);
+	uint16_t goal_ArG = lin_xspeed - lin_wspeed;
+	uint16_t goal_ArD = lin_xspeed + lin_wspeed;
+	
+	_test_motor.writeWordCommand(AR_D_ID, REG_GOAL_VELOCITY_DPS_L, 1, &goal_ArD);
+	_test_motor.writeWordCommand(AR_G_ID, REG_GOAL_VELOCITY_DPS_L, 1, &goal_ArG);
+	
 }
 
 
